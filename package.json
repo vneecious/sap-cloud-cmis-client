@@ -1,0 +1,35 @@
+{
+    "name": "sap-cloud-cmisjs",
+    "version": "1.0.0",
+    "description": "A CMIS client built with @sap-cloud-sdk tools",
+    "author": "Vinicius Barrionuevo",
+    "license": "MIT",
+    "files": [
+      "dist"
+    ],
+    "main": "dist/index.js",
+    "private": false,
+    "scripts": {
+      "prepare": "tsc"
+    },
+    "devDependencies": {
+      "@sap-cloud-sdk/openapi-generator": "3.2.0",
+      "@sap/xsenv": "^4.0.0",
+      "@types/chai": "^4.3.5",
+      "@types/mocha": "^10.0.1",
+      "@types/node": "^20.5.7",
+      "@types/sap__xsenv": "^3.3.0",
+      "@types/sinon": "^10.0.16",
+      "chai": "^4.3.8",
+      "mocha": "^10.2.0",
+      "sinon": "^15.2.0",
+      "ts-node": "^10.9.1",
+      "typescript": "^5.2.2"
+    },
+    "dependencies": {
+      "@sap-cloud-sdk/connectivity": "^3.4.0",
+      "@sap-cloud-sdk/openapi": "^3.4.0",
+      "form-data": "^4.0.0"
+    }
+  }
+  
