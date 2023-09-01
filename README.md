@@ -10,7 +10,7 @@ CMIS Methods:
 - [x] CheckOutDocument
 - [x] CreateDocument
 - [x] CreateDocumentFromSource
-- [ ] CreateFavorite
+- [-] CreateFavorite
 - [x] CreateFolder
 - [ ] CreateLink
 - [ ] CreateSecondaryType
@@ -38,6 +38,6 @@ CMIS Methods:
 - [ ] RemoveAclProperty
 - [ ] RestoreObject
 - [x] Service
-- [ ] UpdateFolder_Document_Link
-- [ ] UpdateProperties
+- [-] UpdateFolder_Document_Link
+- [-] UpdateProperties
 - [ ] ZipCreationForDownload

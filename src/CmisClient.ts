@@ -20,7 +20,7 @@ export type GlobalParameters = {
 };
 
 export type ReadOptions = {
-  additionalProperties?: Record<any, string>;
+  cmisProperties?: Record<any, string | string[]>;
 };
 
 export type WriteOptions = {
@@ -67,15 +67,15 @@ export class CmisClient {
     } & ReadOptions = {}
   ): Promise<CmisAddAclProperty> {
     const transformedAcl = transformToQueryArrayFormat(acl);
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = {
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = {
       ...transformedAcl,
-      ...transformObjectToCmisProperties(additionalProperties || {}),
+      ...transformObjectToCmisProperties(cmisProperties || {}),
     };
 
     const requestBody = {
       cmisaction: "applyAcl",
-      ...cmisProperties,
+      ...allCmisProperties,
       ...this.globalParameters,
       ...optionalParameters,
     };
@@ -108,15 +108,15 @@ export class CmisClient {
       "directoryPath"
     > = {}
   ): Promise<CmisDocument> {
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = transformObjectToCmisProperties({
-      ...(additionalProperties || {}),
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = transformObjectToCmisProperties({
+      ...(cmisProperties || {}),
     });
 
     const bodyData = {
       cmisaction: "appendContent",
       objectId,
-      ...cmisProperties,
+      ...allCmisProperties,
       ...this.globalParameters,
       ...optionalParameters,
     };
@@ -140,15 +140,15 @@ export class CmisClient {
    * @returns
    */
   async cmisQuery(q: string, options: ReadOptions = {}): Promise<CmisQuery> {
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = transformObjectToCmisProperties({
-      ...(additionalProperties || {}),
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = transformObjectToCmisProperties({
+      ...(cmisProperties || {}),
     });
 
     const parameters = {
       cmisSelector: "query",
       q: encodeURIComponent(q),
-      ...cmisProperties,
+      ...allCmisProperties,
       ...this.globalParameters,
       ...optionalParameters,
     };
@@ -172,15 +172,15 @@ export class CmisClient {
       includeAllowableAction?: boolean;
     } & ReadOptions = {}
   ): Promise<CmisDocument> {
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = {
-      ...transformObjectToCmisProperties(additionalProperties || {}),
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = {
+      ...transformObjectToCmisProperties(cmisProperties || {}),
     };
 
     const requestBody = {
       cmisaction: "cancelCheckOut",
       objectId,
-      ...cmisProperties,
+      ...allCmisProperties,
       ...this.globalParameters,
       ...optionalParameters,
     };
@@ -210,15 +210,15 @@ export class CmisClient {
       major?: boolean;
     } & ReadOptions = {}
   ): Promise<CmisDocument> {
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = {
-      ...transformObjectToCmisProperties(additionalProperties || {}),
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = {
+      ...transformObjectToCmisProperties(cmisProperties || {}),
     };
 
     const requestBody = {
       cmisaction: "checkIn",
       objectId,
-      ...cmisProperties,
+      ...allCmisProperties,
       ...this.globalParameters,
       ...optionalParameters,
     };
@@ -246,15 +246,15 @@ export class CmisClient {
       includeAllowableAction?: boolean;
     } & ReadOptions = {}
   ): Promise<CmisDocument> {
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = {
-      ...transformObjectToCmisProperties(additionalProperties || {}),
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = {
+      ...transformObjectToCmisProperties(cmisProperties || {}),
     };
 
     const requestBody = {
       cmisaction: "checkOut",
       objectId,
-      ...cmisProperties,
+      ...allCmisProperties,
       ...this.globalParameters,
       ...optionalParameters,
     };
@@ -280,18 +280,18 @@ export class CmisClient {
   async createDocumentFromSource(
     sourceId: string,
     targetFolderId?: string,
-    options: {} & ReadOptions = {}
+    options: ReadOptions = {}
   ): Promise<CmisDocument> {
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = {
-      ...transformObjectToCmisProperties(additionalProperties || {}),
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = {
+      ...transformObjectToCmisProperties(cmisProperties || {}),
     };
 
     const requestBody = {
       cmisaction: "createDocumentFromSource",
       sourceId,
       objectId: targetFolderId || this.defaultRepository.rootFolderId,
-      ...cmisProperties,
+      ...allCmisProperties,
       ...this.globalParameters,
       ...optionalParameters,
     };
@@ -306,6 +306,26 @@ export class CmisClient {
       )
       .middleware(middlewares.jsonToFormData)
       .execute(this.destination);
+  }
+
+  /**
+   * Creates favorite link object for the specified object if favorites repository configured
+   * This is not a default CMIS method. It uses the SAP standard secondary Type "sap:createFavorite"
+   * TODO: it should just call the updateProperties passing the the required Property ID/Value propertyId[0] = 'cmis:secondaryObjectTypeIds' propertyValue[0][0] = 'sap:createFavorite'
+   * @param objectId - object that will be marked as favorite
+   * @param options
+   * @returns Response data.
+   */
+  async createFavorite(
+    objectId: string,
+    options: ReadOptions = {}
+  ): Promise<CmisDocument> {
+    const cmisProperties = {
+      "cmis:secondaryObjectTypeIds": ["sap:createFavorite"],
+    };
+    return this.updateProperties(objectId, {
+      cmisProperties: cmisProperties,
+    });
   }
 
   /**
@@ -336,16 +356,16 @@ export class CmisClient {
     name: string,
     options: WriteOptions = {}
   ): Promise<CmisFolder> {
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = transformObjectToCmisProperties({
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = transformObjectToCmisProperties({
       "cmis:name": name,
       "cmis:objectTypeId": "cmis:folder",
-      ...(additionalProperties || {}),
+      ...(cmisProperties || {}),
     });
 
     const requestBody = {
       cmisaction: "createFolder",
-      ...cmisProperties,
+      ...allCmisProperties,
       ...this.globalParameters,
       ...optionalParameters,
     };
@@ -383,16 +403,16 @@ export class CmisClient {
     content: any,
     options: { includeAllowableActions?: boolean } & WriteOptions = {}
   ): Promise<CmisDocument> {
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = transformObjectToCmisProperties({
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = transformObjectToCmisProperties({
       "cmis:name": filename,
       "cmis:objectTypeId": "cmis:document",
-      ...(additionalProperties || {}),
+      ...(cmisProperties || {}),
     });
 
     const bodyData = {
       cmisaction: "createDocument",
-      ...cmisProperties,
+      ...allCmisProperties,
       ...this.globalParameters,
       ...optionalParameters,
     };
@@ -417,6 +437,40 @@ export class CmisClient {
         )
         .execute(this.destination);
     }
+  }
+
+  /**
+   * It creates copy of document from the source folder into a targeted folder without changing any properties of the document.
+   * @param objectId - Object that should be updated
+   * @param options
+   * @returns Response data.
+   */
+  async updateProperties(
+    objectId: string,
+    options: ReadOptions = {}
+  ): Promise<CmisDocument> {
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = {
+      ...transformObjectToCmisProperties(cmisProperties || {}),
+    };
+
+    const requestBody = {
+      cmisaction: "update",
+      objectId,
+      ...allCmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const api = CmisGeneratedApi.UpdatePropertiesApi.UpdatePropertiesApi;
+
+    return api
+      .createBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .middleware(middlewares.jsonToFormData)
+      .execute(this.destination);
   }
 
   /**==========================================================================================

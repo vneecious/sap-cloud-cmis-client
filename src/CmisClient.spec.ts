@@ -126,7 +126,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
         document.succinctProperties["cmis:objectId"],
         null,
         {
-          additionalProperties: {
+          cmisProperties: {
             "cmis:name": `${document.succinctProperties["cmis:name"]}-copy`,
           },
         }
@@ -144,5 +144,19 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   it("should run queries", async () => {
     const result = await cmisClient.cmisQuery("select * from cmis:document");
     expect(result).to.have.property("results");
+  });
+
+  it("should update the properties of an object", async () => {
+    const oldName = document.succinctProperties["cmis:name"];
+    const newName = `${oldName}-updated`;
+    const result = await cmisClient.updateProperties(
+      document.succinctProperties["cmis:objectId"],
+      {
+        cmisProperties: {
+          "cmis:name": newName,
+        },
+      }
+    );
+    expect(result.succinctProperties).to.have.property("cmis:name").eq(newName);
   });
 });

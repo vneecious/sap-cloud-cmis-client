@@ -53,6 +53,24 @@ describe("Transform Utility", () => {
     const result = transformObjectToCmisProperties(input);
     expect(result).to.deep.equal(expectedOutput);
   });
+
+  it("transformInputToPropetyBody: should transform input with array value to expected output", () => {
+    const input: InputObject = {
+      someKey: "someValue",
+      anotherKey: ["anotherValue1", "anotherValue2"],
+    };
+
+    const expectedOutput: CmisProperty = {
+      "propertyId[0]": "someKey",
+      "propertyValue[0]": "someValue",
+      "propertyId[1]": "anotherKey",
+      "propertyValue[1][0]": "anotherValue1",
+      "propertyValue[1][1]": "anotherValue2",
+    };
+
+    const result = transformObjectToCmisProperties(input);
+    expect(result).to.deep.equal(expectedOutput);
+  });
 });
 
 describe("Transform Utility", () => {
