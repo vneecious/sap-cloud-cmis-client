@@ -160,6 +160,81 @@ export class CmisClient {
   }
 
   /**
+   * It checks in the document that was checked out as private working copy (PWC).
+   * @param objectId - The object to be updated
+   * @param acl - ACL to be added.
+   * @param options
+   * @returns Response data.
+   */
+  async checkInDocument(
+    objectId: string,
+    options: {
+      checkinComment?: string;
+      major?: boolean;
+    } & ReadOptions = {}
+  ): Promise<CmisDocument> {
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = {
+      ...transformObjectToCmisProperties(additionalProperties || {}),
+    };
+
+    const requestBody = {
+      cmisaction: "checkIn",
+      objectId,
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const api = CmisGeneratedApi.CheckInDocumentApi.CheckInDocumentApi;
+
+    return api
+      .createBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .middleware(middlewares.jsonToFormData)
+      .execute(this.destination);
+  }
+
+  /**
+   * It checks in the document that was checked out as private working copy (PWC).
+   * @param objectId - The object to be updated
+   * @param acl - ACL to be added.
+   * @param options
+   * @returns Response data.
+   */
+  async checkOutDocument(
+    objectId: string,
+    options: {
+      includeAllowableAction?: boolean;
+    } & ReadOptions = {}
+  ): Promise<CmisDocument> {
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = {
+      ...transformObjectToCmisProperties(additionalProperties || {}),
+    };
+
+    const requestBody = {
+      cmisaction: "checkOut",
+      objectId,
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const api = CmisGeneratedApi.CheckOutDocumentApi.CheckOutDocumentApi;
+
+    return api
+      .createBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .middleware(middlewares.jsonToFormData)
+      .execute(this.destination);
+  }
+
+  /**
    * Provides detailed information of the given Content Management Interoperability Services(CMIS) repository linked to and instance and all the necessary information for connecting to it.
    * If no repositoryId is given, fetch all of them and set the first one as the default.
    */

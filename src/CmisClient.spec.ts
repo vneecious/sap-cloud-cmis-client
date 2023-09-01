@@ -30,7 +30,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     expect(repository).to.have.property("repositoryId");
   });
 
-  let document: any;
+  let document: CmisDocument;
   it("should create a document in root", async () => {
     const result = await cmisClient.createDocument(
       `File-${Date.now().toString()}.txt`,
@@ -43,27 +43,32 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     );
   });
 
-  /**
-   * CMIS appendContentStream
-   */
-  describe("CMIS appendContentStream", () => {
-    const fileName = `File-${Date.now().toString()}.txt`;
-    let document: CmisDocument;
+  const fileName = `File-${Date.now().toString()}.txt`;
 
-    it("should create an empty document", async () => {
-      const result = await cmisClient.createDocument(fileName, "");
+  it("should create an empty document", async () => {
+    const result = await cmisClient.createDocument(fileName, "");
 
-      document = result;
-      expect(result.succinctProperties).to.have.property(
-        "cmis:contentStreamLength"
-      );
-    });
+    document = result;
 
-    it("should checkout the created document", async () => {
-      //implementar
-    });
+    expect(result.succinctProperties).to.have.property(
+      "cmis:contentStreamLength"
+    );
+  });
 
-    it("should append content stream the document", async () => {
+  it("should checkout the created document", async () => {
+    const result = await cmisClient.checkOutDocument(
+      document.succinctProperties["cmis:objectId"]
+    );
+
+    document = result;
+
+    expect(result.succinctProperties)
+      .to.have.property("cmis:isPrivateWorkingCopy")
+      .eq(true);
+  });
+
+  it("should append content stream the document", async () => {
+    try {
       const result = await cmisClient.appendContentStream(
         document.succinctProperties["cmis:objectId"],
         fileName,
@@ -72,14 +77,24 @@ describe("CmisClient integration with BTP - DMS Service", function () {
           isLastChunk: true,
         }
       );
+
+      document = result;
+
       expect(result.succinctProperties).to.have.property(
         "cmis:contentStreamLength"
       );
-    });
+    } catch (error) {
+      console.error(error.response.data);
+    }
+  });
 
-    it("should checkin the modified document", async () => {
-      //implementar
-    });
+  it("should checkin the modified document", async () => {
+    const result = await cmisClient.checkInDocument(
+      document.succinctProperties["cmis:objectId"]
+    );
+    expect(result.succinctProperties)
+      .to.have.property("cmis:versionLabel")
+      .eq("2.0");
   });
 
   it("should create a folder in root", async () => {
