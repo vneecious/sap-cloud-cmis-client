@@ -5,25 +5,39 @@ import * as CmisGeneratedApi from "./generated";
 import {
   transformInputToBody,
   transformInputToPropetyBody,
+  transformJsonToFormData,
 } from "./util/Transform";
 
 import { Object as AddAclPropertyResponse } from "./generated/AddAclPropertyApi";
 import { Object as CmisRepository } from "./generated/ServiceApi";
 import { Object as CreateFolderResponse } from "./generated/CreateFolderApi";
+import { Object as CMISQueryResponse } from "./generated/CMISQueryApi";
+import { Object as CreateDocumentResponse } from "./generated/CreateDocumentApi";
+
+export type BaseInput = {
+  succinct?: boolean;
+};
 
 export interface InputAcl {
   addACEPrincipal: string;
   addACEPermission: Array<string>;
 }
 
-export interface InputFolder {
-  "cmis:name": string;
-  succinct: boolean;
-}
+export type InputFolder = {
+  name: string;
+} & BaseInput;
+
+export type InputDocument = {
+  filename: string;
+  content: any;
+  includeAllowableActions?: boolean;
+} & BaseInput;
 
 export class CmisClient {
   private repositories: CmisRepository;
   private defaultRepository: CmisRepository;
+  private charset: string;
+
   constructor(private readonly destination: HttpDestinationOrFetchOptions) {}
 
   /**==========================================================================================
@@ -41,16 +55,20 @@ export class CmisClient {
     objectId: string,
     acl: Array<InputAcl>
   ): Promise<AddAclPropertyResponse> {
+    const transformedAcl = transformInputToBody(acl);
+    const api = CmisGeneratedApi.AddAclPropertyApi.AddAclPropertyApi;
+
     const body = {
       cmisaction: "applyAcl",
       ACLPropagation: "propagate",
-      ...transformInputToBody(acl),
+      ...transformedAcl,
     };
 
-    return CmisGeneratedApi.AddAclPropertyApi.AddAclPropertyApi.createBrowserRootByRepositoryId(
-      this.defaultRepository.repositoryId,
-      body
-    )
+    return api
+      .createBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        body
+      )
       .middleware(middlewares.jsonToFormData)
       .execute(this.destination);
   }
@@ -60,16 +78,15 @@ export class CmisClient {
    * If no repositoryId is given, fetch all of them and set the first one as the default.
    */
   async fetchRepository(repositoryId?: string): Promise<CmisRepository> {
-    this.repositories =
-      await CmisGeneratedApi.ServiceApi.FetchRepositoryApi.getBrowser().execute(
-        this.destination
-      );
+    const api = CmisGeneratedApi.ServiceApi.FetchRepositoryApi;
+    this.repositories = await api.getBrowser().execute(this.destination);
 
     if (repositoryId) {
       this.setDefaultRepository(repositoryId);
+    } else {
+      this.defaultRepository = Object.values(this.repositories)[0];
     }
 
-    this.defaultRepository = Object.values(this.repositories)[0];
     return this.repositories;
   }
 
@@ -80,33 +97,88 @@ export class CmisClient {
    * @returns
    */
   async createFolder(
-    { succinct = true, ...folder }: InputFolder,
+    folder: InputFolder,
     directoryPath?: string
   ): Promise<CreateFolderResponse> {
-    const body = {
+    const transformedProperties = transformInputToPropetyBody({
+      "cmis:name": folder.name,
+      "cmis:objectTypeId": "cmis:folder",
+    });
+
+    const bodyData = {
       cmisaction: "createFolder",
-      succinct: succinct,
-      ...transformInputToPropetyBody({
-        ...folder,
-        "cmis:objectTypeId": "cmis:folder",
-      }),
+      succinct: folder.succinct,
+      ...transformedProperties,
     };
 
-    if (!directoryPath)
-      return await CmisGeneratedApi.CreateFolderApi.CreateFolderApi.createBrowserRootByRepositoryId(
-        this.defaultRepository.repositoryId,
-        body
-      )
+    const api = CmisGeneratedApi.CreateFolderApi.CreateFolderApi;
+
+    if (!directoryPath) {
+      return api
+        .createBrowserRootByRepositoryId(
+          this.defaultRepository.repositoryId,
+          bodyData
+        )
         .middleware(middlewares.jsonToFormData)
         .execute(this.destination);
+    } else {
+      return api
+        .createBrowserRootByRepositoryIdAndDirectoryPath(
+          this.defaultRepository.repositoryId,
+          directoryPath,
+          bodyData
+        )
+        .middleware(middlewares.jsonToFormData)
+        .execute(this.destination);
+    }
+  }
 
-    return await CmisGeneratedApi.CreateFolderApi.CreateFolderApi.createBrowserRootByRepositoryIdAndDirectoryPath(
-      this.defaultRepository.repositoryId,
-      directoryPath,
-      body
-    )
-      .middleware(middlewares.jsonToFormData)
-      .execute(this.destination);
+  /**
+   * It creates a document object of the speciﬁed type (given by the cmis:objectTypeId property) in the speciﬁed location.
+   * @param document - document data
+   * @param directoryPath - The folder path to create the document object.
+   * @returns
+   */
+  async createDocument(
+    document: InputDocument,
+    directoryPath?: string
+  ): Promise<CreateDocumentResponse> {
+    const documentProperties = {
+      "cmis:name": document.filename,
+      "cmis:objectTypeId": "cmis:document",
+    };
+
+    const { content, ...otherData } = document;
+
+    const transformedProperties =
+      transformInputToPropetyBody(documentProperties);
+
+    const bodyData = {
+      cmisaction: "createDocument",
+      ...transformedProperties,
+      ...otherData,
+    };
+
+    const body = transformJsonToFormData(bodyData);
+    body.append("content", content, otherData.filename);
+
+    const api = CmisGeneratedApi.CreateDocumentApi.CreateDocumentApi;
+    if (!directoryPath) {
+      return api
+        .createBrowserRootByRepositoryId(
+          this.defaultRepository.repositoryId,
+          body
+        )
+        .execute(this.destination);
+    } else {
+      return api
+        .createBrowserRootByRepositoryIdAndDirectoryPath(
+          this.defaultRepository.repositoryId,
+          directoryPath,
+          body
+        )
+        .execute(this.destination);
+    }
   }
 
   /**
@@ -115,31 +187,40 @@ export class CmisClient {
    * @param queryParameters - Object containing the following keys: cmisSelector, q.
    * @returns
    */
-  async query(q: string) {
+  async query(q: string): Promise<CMISQueryResponse> {
     const parameters = {
       cmisSelector: "query",
       q: encodeURIComponent(q),
     };
 
-    return await CmisGeneratedApi.CMISQuery.CMISQueryApi.getBrowserByRepositoryId(
-      this.defaultRepository.repositoryId,
-      parameters
-    ).execute(this.destination);
+    const api = CmisGeneratedApi.CMISQuery.CMISQueryApi;
+    return api
+      .getBrowserByRepositoryId(this.defaultRepository.repositoryId, parameters)
+      .execute(this.destination);
   }
 
   /**==========================================================================================
    * CMIS CLIENT SPECIFIC METHODS
-   *==========================================================================================/
+   *=========================================================================================*/
 
   /**
    * Set the given repository Id as the default
    * @param repositoryId Repository ID
    */
-  setDefaultRepository(repositoryId: string) {
+  setDefaultRepository(repositoryId: string): void {
     const newRepository = this.repositories[repositoryId];
+
     if (!newRepository) {
       throw new Error(`No repository found with ID: ${repositoryId}`);
     }
+
     this.defaultRepository = newRepository;
+  }
+
+  /**==========================================================================================
+   * PRIVATE
+   *==========================================================================================*/
+  setCharset(value: string) {
+    this.charset = value;
   }
 }
