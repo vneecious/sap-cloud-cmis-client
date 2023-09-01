@@ -3,7 +3,7 @@ import sinon from "sinon";
 import {
   InputObject,
   CmisProperty,
-  transformDeepObjectToCmisProperties,
+  transformToQueryArrayFormat,
   transformObjectToCmisProperties,
   transformJsonToFormData,
 } from "./Transform";
@@ -31,7 +31,7 @@ describe("Transform Utility", () => {
       "anotherKey[1][1]": "value4",
     };
 
-    const result = transformDeepObjectToCmisProperties(input);
+    const result = transformToQueryArrayFormat(input);
     expect(result).to.deep.equal(expectedOutput);
   });
 });

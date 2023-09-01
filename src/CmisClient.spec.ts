@@ -6,6 +6,8 @@ import { expect } from "chai";
 import { CmisClient } from "./CmisClient";
 import { loadEnv } from "@sap/xsenv";
 
+import { Object as CmisDocument } from "./generated/CreateDocumentApi";
+
 describe("CmisClient integration with BTP - DMS Service", function () {
   this.timeout(10000);
 
@@ -28,24 +30,65 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     expect(repository).to.have.property("repositoryId");
   });
 
-  it("should create a folder in root", async () => {
-    const result = await cmisClient.createFolder(`folder-${Date.now()}`);
-    expect(result).to.have.property("succinctProperties");
-  });
-
+  let document: any;
   it("should create a document in root", async () => {
     const result = await cmisClient.createDocument(
       `File-${Date.now().toString()}.txt`,
       Buffer.from("Lorem ipsum dolor", "utf-8")
     );
 
+    document = result.succinctProperties;
     expect(result.succinctProperties).to.have.property(
       "cmis:contentStreamLength"
     );
   });
 
+  /**
+   * CMIS appendContentStream
+   */
+  describe("CMIS appendContentStream", () => {
+    const fileName = `File-${Date.now().toString()}.txt`;
+    let document: CmisDocument;
+
+    it("should create an empty document", async () => {
+      const result = await cmisClient.createDocument(fileName, "");
+
+      document = result;
+      expect(result.succinctProperties).to.have.property(
+        "cmis:contentStreamLength"
+      );
+    });
+
+    it("should checkout the created document", async () => {
+      //implementar
+    });
+
+    it("should append content stream the document", async () => {
+      const result = await cmisClient.appendContentStream(
+        document.succinctProperties["cmis:objectId"],
+        fileName,
+        Buffer.from("This content was appended", "utf-8"),
+        {
+          isLastChunk: true,
+        }
+      );
+      expect(result.succinctProperties).to.have.property(
+        "cmis:contentStreamLength"
+      );
+    });
+
+    it("should checkin the modified document", async () => {
+      //implementar
+    });
+  });
+
+  it("should create a folder in root", async () => {
+    const result = await cmisClient.createFolder(`folder-${Date.now()}`);
+    expect(result).to.have.property("succinctProperties");
+  });
+
   it("should run queries", async () => {
-    const result = await cmisClient.query("select * from cmis:document");
+    const result = await cmisClient.cmisQuery("select * from cmis:document");
     expect(result).to.have.property("results");
   });
 });

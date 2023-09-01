@@ -1,3 +1,43 @@
 ## sap-cloud-cmisjs
 
-empty
+CMIS Features:
+
+- [x] AddAclProperty
+- [X] AppendContentStream
+- [x] CMISQuery
+- [ ] CancelCheckOutDocument
+- [ ] CheckInDocument
+- [ ] CheckOutDocument
+- [x] CreateDocument
+- [ ] CreateDocumentFromSource
+- [ ] CreateFavorite
+- [x] CreateFolder
+- [ ] CreateLink
+- [ ] CreateSecondaryType
+- [ ] CreateShare
+- [ ] DeleteObject
+- [ ] DeletePermanently
+- [ ] DeleteTree
+- [ ] DownloadFile
+- [ ] GenerateThumbnail
+- [ ] GetAclProperty
+- [ ] GetAllowableActions
+- [ ] GetChildren
+- [ ] GetDeletedChildren
+- [ ] GetDescendants
+- [ ] GetFolderTree
+- [ ] GetObject
+- [ ] GetParent
+- [ ] GetProperties
+- [ ] GetTypeChildren
+- [ ] GetTypeDefinition
+- [ ] GetTypeDescendants
+- [ ] GetZipContentStream
+- [ ] MassUpload
+- [ ] MoveObject
+- [ ] RemoveAclProperty
+- [ ] RestoreObject
+- [x] Service
+- [ ] UpdateFolder_Document_Link
+- [ ] UpdateProperties
+- [ ] ZipCreationForDownload

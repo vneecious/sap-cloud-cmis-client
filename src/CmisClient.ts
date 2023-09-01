@@ -3,7 +3,7 @@ import * as middlewares from "./middleware";
 
 import * as CmisGeneratedApi from "./generated";
 import {
-  transformDeepObjectToCmisProperties,
+  transformToQueryArrayFormat,
   transformObjectToCmisProperties,
   transformJsonToFormData,
 } from "./util/Transform";
@@ -66,7 +66,7 @@ export class CmisClient {
       ACLPropagation?: "objectonly" | "propagate" | "repositorydetermined";
     } & ReadOptions = {}
   ): Promise<CmisAddAclProperty> {
-    const transformedAcl = transformDeepObjectToCmisProperties(acl);
+    const transformedAcl = transformToQueryArrayFormat(acl);
     const { additionalProperties, ...optionalParameters } = options;
     const cmisProperties = {
       ...transformedAcl,
@@ -88,6 +88,74 @@ export class CmisClient {
         requestBody
       )
       .middleware(middlewares.jsonToFormData)
+      .execute(this.destination);
+  }
+  /**
+   * Appends a content stream to the content stream of the document and refreshes this object afterwards.
+   * If the repository created a new version, this new document is returned. Otherwise the current document is returned
+   * @param objectId - Document Id
+   * @param filename - Filename (ex: filename.json)
+   * @param content - File content. It can be whatever FormData accepts (Blob, Buffer, Stream)
+   * @param options - Optional options
+   * @returns the document
+   */
+  async appendContentStream(
+    objectId: string,
+    filename: string,
+    content: any,
+    options: { isLastChunk?: boolean } & Omit<
+      WriteOptions,
+      "directoryPath"
+    > = {}
+  ): Promise<CmisDocument> {
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = transformObjectToCmisProperties({
+      ...(additionalProperties || {}),
+    });
+
+    const bodyData = {
+      cmisaction: "appendContent",
+      objectId,
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const requestBody = transformJsonToFormData(bodyData);
+    requestBody.append("content", content, filename);
+
+    const api = CmisGeneratedApi.AppendContentStreamApi.AppendContentStreamApi;
+    return api
+      .createBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .execute(this.destination);
+  }
+
+  /**
+   * It provides a type-based query service for discovering objects that match speciﬁed criteria, by deﬁning a read-only projection of the CMIS data model into a relational view
+   * Through this relational view, queries may be performed via a simpliﬁed SQL SELECT statement.
+   * @param queryParameters - Object containing the following keys: cmisSelector, q.
+   * @returns
+   */
+  async cmisQuery(q: string, options: ReadOptions = {}): Promise<CmisQuery> {
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = transformObjectToCmisProperties({
+      ...(additionalProperties || {}),
+    });
+
+    const parameters = {
+      cmisSelector: "query",
+      q: encodeURIComponent(q),
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const api = CmisGeneratedApi.CMISQuery.CMISQueryApi;
+    return api
+      .getBrowserByRepositoryId(this.defaultRepository.repositoryId, parameters)
       .execute(this.destination);
   }
 
@@ -200,32 +268,6 @@ export class CmisClient {
         )
         .execute(this.destination);
     }
-  }
-
-  /**
-   * It provides a type-based query service for discovering objects that match speciﬁed criteria, by deﬁning a read-only projection of the CMIS data model into a relational view
-   * Through this relational view, queries may be performed via a simpliﬁed SQL SELECT statement.
-   * @param queryParameters - Object containing the following keys: cmisSelector, q.
-   * @returns
-   */
-  async query(q: string, options: ReadOptions = {}): Promise<CmisQuery> {
-    const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = transformObjectToCmisProperties({
-      ...(additionalProperties || {}),
-    });
-
-    const parameters = {
-      cmisSelector: "query",
-      q: encodeURIComponent(q),
-      ...cmisProperties,
-      ...this.globalParameters,
-      ...optionalParameters,
-    };
-
-    const api = CmisGeneratedApi.CMISQuery.CMISQueryApi;
-    return api
-      .getBrowserByRepositoryId(this.defaultRepository.repositoryId, parameters)
-      .execute(this.destination);
   }
 
   /**==========================================================================================
