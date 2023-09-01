@@ -1,13 +1,13 @@
 ## sap-cloud-cmisjs
 
-CMIS Features:
+CMIS Methods:
 
 - [x] AddAclProperty
-- [X] AppendContentStream
+- [x] AppendContentStream
 - [x] CMISQuery
-- [ ] CancelCheckOutDocument
-- [ ] CheckInDocument
-- [ ] CheckOutDocument
+- [x] CancelCheckOutDocument
+- [x] CheckInDocument
+- [x] CheckOutDocument
 - [x] CreateDocument
 - [ ] CreateDocumentFromSource
 - [ ] CreateFavorite

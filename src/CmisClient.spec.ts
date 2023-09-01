@@ -55,7 +55,27 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     );
   });
 
+  let documentCheckOut;
   it("should checkout the created document", async () => {
+    const result = await cmisClient.checkOutDocument(
+      document.succinctProperties["cmis:objectId"]
+    );
+
+    documentCheckOut = result;
+
+    expect(result.succinctProperties)
+      .to.have.property("cmis:isPrivateWorkingCopy")
+      .eq(true);
+  });
+
+  it("should cancel checkout", async () => {
+    const result = await cmisClient.cancelCheckOutDocument(
+      documentCheckOut.succinctProperties["cmis:objectId"]
+    );
+    expect(result).to.be.eq("");
+  });
+
+  it("should checkout the again", async () => {
     const result = await cmisClient.checkOutDocument(
       document.succinctProperties["cmis:objectId"]
     );

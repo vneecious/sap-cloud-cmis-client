@@ -160,9 +160,46 @@ export class CmisClient {
   }
 
   /**
-   * It checks in the document that was checked out as private working copy (PWC).
+   * Reverses the eﬀect of a check-out (check out). Removes the Private Working Copy of the checked-out document, allowing other documents in the version series to be checked out again.
    * @param objectId - The object to be updated
    * @param acl - ACL to be added.
+   * @param options
+   * @returns Response data.
+   */
+  async cancelCheckOutDocument(
+    objectId: string,
+    options: {
+      includeAllowableAction?: boolean;
+    } & ReadOptions = {}
+  ): Promise<CmisDocument> {
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = {
+      ...transformObjectToCmisProperties(additionalProperties || {}),
+    };
+
+    const requestBody = {
+      cmisaction: "cancelCheckOut",
+      objectId,
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const api =
+      CmisGeneratedApi.CancelCheckoutDocumentApi.CancelCheckoutDocumentApi;
+
+    return api
+      .createBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .middleware(middlewares.jsonToFormData)
+      .execute(this.destination);
+  }
+
+  /**
+   * It checks in the document that was checked out as private working copy (PWC).
+   * @param objectId - The object to be updated
    * @param options
    * @returns Response data.
    */
@@ -200,7 +237,6 @@ export class CmisClient {
   /**
    * It checks in the document that was checked out as private working copy (PWC).
    * @param objectId - The object to be updated
-   * @param acl - ACL to be added.
    * @param options
    * @returns Response data.
    */
