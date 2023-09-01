@@ -1,12 +1,12 @@
 import FormData from "form-data";
 
-export type TransformOutput = Record<string, string>;
-export type TransformInput = Record<any, any | any[]>;
+export type CmisProperty = Record<string, string>;
+export type InputObject = Record<any, any | any[]>;
 
-export function transformInputToBody(
-  input: Array<TransformInput>
-): TransformOutput {
-  const result: TransformOutput = {};
+export function transformDeepObjectToCmisProperties(
+  input: Array<InputObject>
+): CmisProperty {
+  const result: CmisProperty = {};
 
   input.forEach((item, index) => {
     Object.keys(item).forEach((key) => {
@@ -25,10 +25,10 @@ export function transformInputToBody(
   return result;
 }
 
-export function transformInputToPropetyBody(
-  input: TransformInput
-): TransformOutput {
-  const result: TransformOutput = {};
+export function transformObjectToCmisProperties(
+  input: InputObject
+): CmisProperty {
+  const result: CmisProperty = {};
   Object.entries(input).forEach((entry, idx) => {
     result[`propertyId[${idx}]`] = entry[0];
     result[`propertyValue[${idx}]`] = entry[1];

@@ -3,43 +3,34 @@ import * as middlewares from "./middleware";
 
 import * as CmisGeneratedApi from "./generated";
 import {
-  transformInputToBody,
-  transformInputToPropetyBody,
+  transformDeepObjectToCmisProperties,
+  transformObjectToCmisProperties,
   transformJsonToFormData,
 } from "./util/Transform";
 
-import { Object as AddAclPropertyResponse } from "./generated/AddAclPropertyApi";
+import { Object as CmisAddAclProperty } from "./generated/AddAclPropertyApi";
 import { Object as CmisRepository } from "./generated/ServiceApi";
-import { Object as CreateFolderResponse } from "./generated/CreateFolderApi";
-import { Object as CMISQueryResponse } from "./generated/CMISQueryApi";
-import { Object as CreateDocumentResponse } from "./generated/CreateDocumentApi";
+import { Object as CmisFolder } from "./generated/CreateFolderApi";
+import { Object as CmisQuery } from "./generated/CMISQueryApi";
+import { Object as CmisDocument } from "./generated/CreateDocumentApi";
 
 export type GlobalParameters = {
   _charset?: string;
   succinct?: boolean;
 };
 
-export type InputFolder = {
-  name: string;
-};
-
-export type InputDocument = {
-  filename: string;
-  content: any;
-};
-
-export type InputAcl = {
-  addACEPrincipal: string;
-  addACEPermission: Array<string>;
-};
-
-export type BaseOptions = {
+export type ReadOptions = {
   additionalProperties?: Array<Record<string, string>>;
 };
 
 export type WriteOptions = {
   directoryPath?: string;
-} & BaseOptions;
+} & ReadOptions;
+
+export type InputAcl = {
+  addACEPrincipal: string;
+  addACEPermission: Array<string>;
+};
 
 export class CmisClient {
   private repositories: CmisRepository;
@@ -73,13 +64,13 @@ export class CmisClient {
     acl: Array<InputAcl>,
     options: {
       ACLPropagation?: "objectonly" | "propagate" | "repositorydetermined";
-    } & BaseOptions = {}
-  ): Promise<AddAclPropertyResponse> {
-    const transformedAcl = transformInputToBody(acl);
+    } & ReadOptions = {}
+  ): Promise<CmisAddAclProperty> {
+    const transformedAcl = transformDeepObjectToCmisProperties(acl);
     const { additionalProperties, ...optionalParameters } = options;
     const cmisProperties = {
       ...transformedAcl,
-      ...transformInputToPropetyBody(additionalProperties || {}),
+      ...transformObjectToCmisProperties(additionalProperties || {}),
     };
 
     const requestBody = {
@@ -127,9 +118,9 @@ export class CmisClient {
   async createFolder(
     name: string,
     options: WriteOptions = {}
-  ): Promise<CreateFolderResponse> {
+  ): Promise<CmisFolder> {
     const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = transformInputToPropetyBody({
+    const cmisProperties = transformObjectToCmisProperties({
       "cmis:name": name,
       "cmis:objectTypeId": "cmis:folder",
       ...(additionalProperties || {}),
@@ -174,9 +165,9 @@ export class CmisClient {
     filename: string,
     content: any,
     options: { includeAllowableActions?: boolean } & WriteOptions = {}
-  ): Promise<CreateDocumentResponse> {
+  ): Promise<CmisDocument> {
     const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = transformInputToPropetyBody({
+    const cmisProperties = transformObjectToCmisProperties({
       "cmis:name": filename,
       "cmis:objectTypeId": "cmis:document",
       ...(additionalProperties || {}),
@@ -217,12 +208,9 @@ export class CmisClient {
    * @param queryParameters - Object containing the following keys: cmisSelector, q.
    * @returns
    */
-  async query(
-    q: string,
-    options: BaseOptions = {}
-  ): Promise<CMISQueryResponse> {
+  async query(q: string, options: ReadOptions = {}): Promise<CmisQuery> {
     const { additionalProperties, ...optionalParameters } = options;
-    const cmisProperties = transformInputToPropetyBody({
+    const cmisProperties = transformObjectToCmisProperties({
       ...(additionalProperties || {}),
     });
 

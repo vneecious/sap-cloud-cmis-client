@@ -1,17 +1,17 @@
 import { expect } from "chai";
 import sinon from "sinon";
 import {
-  TransformInput,
-  TransformOutput,
-  transformInputToBody,
-  transformInputToPropetyBody,
+  InputObject,
+  CmisProperty,
+  transformDeepObjectToCmisProperties,
+  transformObjectToCmisProperties,
   transformJsonToFormData,
 } from "./Transform";
 import FormData from "form-data";
 
 describe("Transform Utility", () => {
   it("transformInputToBody: should transform input to expected output", () => {
-    const input: Array<TransformInput> = [
+    const input: Array<InputObject> = [
       {
         someKey: "someValue",
         anotherKey: ["value1", "value2"],
@@ -22,7 +22,7 @@ describe("Transform Utility", () => {
       },
     ];
 
-    const expectedOutput: TransformOutput = {
+    const expectedOutput: CmisProperty = {
       "someKey[0]": "someValue",
       "anotherKey[0][0]": "value1",
       "anotherKey[0][1]": "value2",
@@ -31,26 +31,26 @@ describe("Transform Utility", () => {
       "anotherKey[1][1]": "value4",
     };
 
-    const result = transformInputToBody(input);
+    const result = transformDeepObjectToCmisProperties(input);
     expect(result).to.deep.equal(expectedOutput);
   });
 });
 
 describe("Transform Utility", () => {
   it("transformInputToPropetyBody: should transform input to expected output", () => {
-    const input: TransformInput = {
+    const input: InputObject = {
       someKey: "someValue",
       anotherKey: "anotherValue",
     };
 
-    const expectedOutput: TransformOutput = {
+    const expectedOutput: CmisProperty = {
       "propertyId[0]": "someKey",
       "propertyValue[0]": "someValue",
       "propertyId[1]": "anotherKey",
       "propertyValue[1]": "anotherValue",
     };
 
-    const result = transformInputToPropetyBody(input);
+    const result = transformObjectToCmisProperties(input);
     expect(result).to.deep.equal(expectedOutput);
   });
 });
