@@ -121,20 +121,29 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   });
 
   it("should create a document from a source", async () => {
-    try {
-      const result = await cmisClient.createDocumentFromSource(
-        document.succinctProperties["cmis:objectId"],
-        null,
-        {
-          cmisProperties: {
-            "cmis:name": `${document.succinctProperties["cmis:name"]}-copy`,
-          },
-        }
-      );
-    } catch (error) {
-      debugger;
-    }
+    const result = await cmisClient.createDocumentFromSource(
+      document.succinctProperties["cmis:objectId"],
+      null,
+      {
+        cmisProperties: {
+          "cmis:name": `${document.succinctProperties["cmis:name"]}-copy`,
+        },
+      }
+    );
   });
+
+  /**
+   * Skipped due to unexpected HTTP 500 error from the service.
+   * Error Details:
+   *   - exception: "runtime"
+   *   - message: "Method 'getLogonName' is not supported for grant type 'client_credentials'client_credentials"
+   * TODO: Revisit and check once the service issue is resolved.
+   */
+  it("should set an object as favorite", async () => {
+    const result = await cmisClient.createFavorite(
+      document.succinctProperties["cmis:objectId"]
+    );
+  }).skip();
 
   it("should create a folder in root", async () => {
     const result = await cmisClient.createFolder(`folder-${Date.now()}`);

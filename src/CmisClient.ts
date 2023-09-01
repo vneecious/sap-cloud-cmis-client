@@ -310,21 +310,16 @@ export class CmisClient {
 
   /**
    * Creates favorite link object for the specified object if favorites repository configured
-   * This is not a default CMIS method. It uses the SAP standard secondary Type "sap:createFavorite"
-   * TODO: it should just call the updateProperties passing the the required Property ID/Value propertyId[0] = 'cmis:secondaryObjectTypeIds' propertyValue[0][0] = 'sap:createFavorite'
+   * This is not a default CMIS method. It just add "sap:createFavorite" as an secondary object type id
+   * of the object.
    * @param objectId - object that will be marked as favorite
-   * @param options
    * @returns Response data.
    */
-  async createFavorite(
-    objectId: string,
-    options: ReadOptions = {}
-  ): Promise<CmisDocument> {
-    const cmisProperties = {
-      "cmis:secondaryObjectTypeIds": ["sap:createFavorite"],
-    };
+  async createFavorite(objectId: string): Promise<CmisDocument> {
     return this.updateProperties(objectId, {
-      cmisProperties: cmisProperties,
+      cmisProperties: {
+        "cmis:secondaryObjectTypeIds": ["sap:createFavorite"],
+      },
     });
   }
 
@@ -440,7 +435,10 @@ export class CmisClient {
   }
 
   /**
-   * It creates copy of document from the source folder into a targeted folder without changing any properties of the document.
+   * Updates properties and secondary types of the specified object.
+   * All properties passed to updateProperties be updated to their new values.
+   * Properties that are passed without a value will be set to their default value or un-set if no default value is defined.
+   * All others property values remain untouched.
    * @param objectId - Object that should be updated
    * @param options
    * @returns Response data.
