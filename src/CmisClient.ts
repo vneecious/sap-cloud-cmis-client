@@ -20,7 +20,7 @@ export type GlobalParameters = {
 };
 
 export type ReadOptions = {
-  additionalProperties?: Array<Record<string, string>>;
+  additionalProperties?: Record<any, string>;
 };
 
 export type WriteOptions = {
@@ -260,6 +260,44 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.CheckOutDocumentApi.CheckOutDocumentApi;
+
+    return api
+      .createBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .middleware(middlewares.jsonToFormData)
+      .execute(this.destination);
+  }
+
+  /**
+   * It creates copy of document from the source folder into a targeted folder without changing any properties of the document.
+   * @param sourceId - The object that should be copied
+   * @param targetFolderId - the folder where to copy should be placed
+   * @param options
+   * @returns Response data.
+   */
+  async createDocumentFromSource(
+    sourceId: string,
+    targetFolderId?: string,
+    options: {} & ReadOptions = {}
+  ): Promise<CmisDocument> {
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = {
+      ...transformObjectToCmisProperties(additionalProperties || {}),
+    };
+
+    const requestBody = {
+      cmisaction: "createDocumentFromSource",
+      sourceId,
+      objectId: targetFolderId || this.defaultRepository.rootFolderId,
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const api =
+      CmisGeneratedApi.CreateDocumentfromSourceApi.CreateDocumentfromSourceApi;
 
     return api
       .createBrowserRootByRepositoryId(

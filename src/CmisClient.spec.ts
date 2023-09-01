@@ -112,9 +112,28 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     const result = await cmisClient.checkInDocument(
       document.succinctProperties["cmis:objectId"]
     );
+
+    document = result;
+
     expect(result.succinctProperties)
       .to.have.property("cmis:versionLabel")
       .eq("2.0");
+  });
+
+  it("should create a document from a source", async () => {
+    try {
+      const result = await cmisClient.createDocumentFromSource(
+        document.succinctProperties["cmis:objectId"],
+        null,
+        {
+          additionalProperties: {
+            "cmis:name": `${document.succinctProperties["cmis:name"]}-copy`,
+          },
+        }
+      );
+    } catch (error) {
+      debugger;
+    }
   });
 
   it("should create a folder in root", async () => {

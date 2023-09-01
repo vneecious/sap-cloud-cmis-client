@@ -9,7 +9,7 @@ CMIS Methods:
 - [x] CheckInDocument
 - [x] CheckOutDocument
 - [x] CreateDocument
-- [ ] CreateDocumentFromSource
+- [x] CreateDocumentFromSource
 - [ ] CreateFavorite
 - [x] CreateFolder
 - [ ] CreateLink

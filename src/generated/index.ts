@@ -4,6 +4,7 @@ export * as CMISQuery from "./CMISQueryApi";
 export * as CancelCheckoutDocumentApi from "./CancelCheckOutDocumentApi";
 export * as CheckInDocumentApi from "./CheckInDocumentApi";
 export * as CheckOutDocumentApi from "./CheckOutDocumentApi";
+export * as CreateDocumentfromSourceApi from "./CreateDocumentFromSourceApi";
 export * as CreateFolderApi from "./CreateFolderApi";
 export * as CreateDocumentApi from "./CreateDocumentApi";
 export * as ServiceApi from "./ServiceApi";
