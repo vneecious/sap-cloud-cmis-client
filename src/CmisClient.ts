@@ -14,60 +14,87 @@ import { Object as CreateFolderResponse } from "./generated/CreateFolderApi";
 import { Object as CMISQueryResponse } from "./generated/CMISQueryApi";
 import { Object as CreateDocumentResponse } from "./generated/CreateDocumentApi";
 
-export type BaseInput = {
+export type GlobalParameters = {
+  _charset?: string;
   succinct?: boolean;
 };
 
-export interface InputAcl {
-  addACEPrincipal: string;
-  addACEPermission: Array<string>;
-}
-
 export type InputFolder = {
   name: string;
-} & BaseInput;
+};
 
 export type InputDocument = {
   filename: string;
   content: any;
-  includeAllowableActions?: boolean;
-} & BaseInput;
+};
+
+export type InputAcl = {
+  addACEPrincipal: string;
+  addACEPermission: Array<string>;
+};
+
+export type BaseOptions = {
+  additionalProperties?: Array<Record<string, string>>;
+};
+
+export type WriteOptions = {
+  directoryPath?: string;
+} & BaseOptions;
 
 export class CmisClient {
   private repositories: CmisRepository;
   private defaultRepository: CmisRepository;
-  private charset: string;
 
-  constructor(private readonly destination: HttpDestinationOrFetchOptions) {}
+  constructor(
+    private readonly destination: HttpDestinationOrFetchOptions,
+    private globalParameters?: GlobalParameters
+  ) {
+    if (!globalParameters) {
+      this.globalParameters = {
+        _charset: "UTF-8",
+        succinct: true,
+      };
+    }
+  }
 
   /**==========================================================================================
    * CMIS API METHODS
-   *==========================================================================================/
+   *==========================================================================================*/
 
   /**
    * It adds a list of  Access Control Entries(ACE) to the Access Control List(ACL) of an object with permissions that can be of cmis:read, cmis:write, all.
-   * @param repositoryId - The repository to be used is identified using repository id
    * @param objectId - The object to be updated
    * @param acl - ACL to be added.
+   * @param options
    * @returns Response data.
    */
   async addAclProperty(
     objectId: string,
-    acl: Array<InputAcl>
+    acl: Array<InputAcl>,
+    options: {
+      ACLPropagation?: "objectonly" | "propagate" | "repositorydetermined";
+    } & BaseOptions = {}
   ): Promise<AddAclPropertyResponse> {
     const transformedAcl = transformInputToBody(acl);
-    const api = CmisGeneratedApi.AddAclPropertyApi.AddAclPropertyApi;
-
-    const body = {
-      cmisaction: "applyAcl",
-      ACLPropagation: "propagate",
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = {
       ...transformedAcl,
+      ...transformInputToPropetyBody(additionalProperties || {}),
     };
+
+    const requestBody = {
+      cmisaction: "applyAcl",
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const api = CmisGeneratedApi.AddAclPropertyApi.AddAclPropertyApi;
 
     return api
       .createBrowserRootByRepositoryId(
         this.defaultRepository.repositoryId,
-        body
+        requestBody
       )
       .middleware(middlewares.jsonToFormData)
       .execute(this.destination);
@@ -79,6 +106,7 @@ export class CmisClient {
    */
   async fetchRepository(repositoryId?: string): Promise<CmisRepository> {
     const api = CmisGeneratedApi.ServiceApi.FetchRepositoryApi;
+
     this.repositories = await api.getBrowser().execute(this.destination);
 
     if (repositoryId) {
@@ -92,32 +120,35 @@ export class CmisClient {
 
   /**
    * Create a new Folder in the given directoryPath. If no directoryPath is given, then creates it in the root folder
-   * @param folder - Folder data
+   * @param name - Folder name
    * @param directoryPath - [OPTIONAL] path where the folder must be created
    * @returns
    */
   async createFolder(
-    folder: InputFolder,
-    directoryPath?: string
+    name: string,
+    options: WriteOptions = {}
   ): Promise<CreateFolderResponse> {
-    const transformedProperties = transformInputToPropetyBody({
-      "cmis:name": folder.name,
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = transformInputToPropetyBody({
+      "cmis:name": name,
       "cmis:objectTypeId": "cmis:folder",
+      ...(additionalProperties || {}),
     });
 
-    const bodyData = {
+    const requestBody = {
       cmisaction: "createFolder",
-      succinct: folder.succinct,
-      ...transformedProperties,
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
     };
 
     const api = CmisGeneratedApi.CreateFolderApi.CreateFolderApi;
 
-    if (!directoryPath) {
+    if (!options.directoryPath) {
       return api
         .createBrowserRootByRepositoryId(
           this.defaultRepository.repositoryId,
-          bodyData
+          requestBody
         )
         .middleware(middlewares.jsonToFormData)
         .execute(this.destination);
@@ -125,8 +156,8 @@ export class CmisClient {
       return api
         .createBrowserRootByRepositoryIdAndDirectoryPath(
           this.defaultRepository.repositoryId,
-          directoryPath,
-          bodyData
+          options.directoryPath,
+          requestBody
         )
         .middleware(middlewares.jsonToFormData)
         .execute(this.destination);
@@ -140,42 +171,41 @@ export class CmisClient {
    * @returns
    */
   async createDocument(
-    document: InputDocument,
-    directoryPath?: string
+    filename: string,
+    content: any,
+    options: { includeAllowableActions?: boolean } & WriteOptions = {}
   ): Promise<CreateDocumentResponse> {
-    const documentProperties = {
-      "cmis:name": document.filename,
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = transformInputToPropetyBody({
+      "cmis:name": filename,
       "cmis:objectTypeId": "cmis:document",
-    };
-
-    const { content, ...otherData } = document;
-
-    const transformedProperties =
-      transformInputToPropetyBody(documentProperties);
+      ...(additionalProperties || {}),
+    });
 
     const bodyData = {
       cmisaction: "createDocument",
-      ...transformedProperties,
-      ...otherData,
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
     };
 
-    const body = transformJsonToFormData(bodyData);
-    body.append("content", content, otherData.filename);
+    const requestBody = transformJsonToFormData(bodyData);
+    requestBody.append("content", content, filename);
 
     const api = CmisGeneratedApi.CreateDocumentApi.CreateDocumentApi;
-    if (!directoryPath) {
+    if (!options.directoryPath) {
       return api
         .createBrowserRootByRepositoryId(
           this.defaultRepository.repositoryId,
-          body
+          requestBody
         )
         .execute(this.destination);
     } else {
       return api
         .createBrowserRootByRepositoryIdAndDirectoryPath(
           this.defaultRepository.repositoryId,
-          directoryPath,
-          body
+          options.directoryPath,
+          requestBody
         )
         .execute(this.destination);
     }
@@ -187,10 +217,21 @@ export class CmisClient {
    * @param queryParameters - Object containing the following keys: cmisSelector, q.
    * @returns
    */
-  async query(q: string): Promise<CMISQueryResponse> {
+  async query(
+    q: string,
+    options: BaseOptions = {}
+  ): Promise<CMISQueryResponse> {
+    const { additionalProperties, ...optionalParameters } = options;
+    const cmisProperties = transformInputToPropetyBody({
+      ...(additionalProperties || {}),
+    });
+
     const parameters = {
       cmisSelector: "query",
       q: encodeURIComponent(q),
+      ...cmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
     };
 
     const api = CmisGeneratedApi.CMISQuery.CMISQueryApi;
@@ -217,10 +258,15 @@ export class CmisClient {
     this.defaultRepository = newRepository;
   }
 
+  /**
+   * Set parameters that should be sent in all requests
+   * @param value - Default Options
+   */
+  setGlobalParameters(value: GlobalParameters): void {
+    this.globalParameters = value;
+  }
+
   /**==========================================================================================
    * PRIVATE
    *==========================================================================================*/
-  setCharset(value: string) {
-    this.charset = value;
-  }
 }

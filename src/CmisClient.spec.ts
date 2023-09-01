@@ -29,19 +29,15 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   });
 
   it("should create a folder in root", async () => {
-    const result = await cmisClient.createFolder({
-      name: `folder-${Date.now()}`,
-      succinct: true,
-    });
+    const result = await cmisClient.createFolder(`folder-${Date.now()}`);
     expect(result).to.have.property("succinctProperties");
   });
 
   it("should create a document in root", async () => {
-    const result = await cmisClient.createDocument({
-      filename: `File-${Date.now().toString()}.txt`,
-      content: Buffer.from("Lorem ipsum dolor", "utf-8"),
-      succinct: true,
-    });
+    const result = await cmisClient.createDocument(
+      `File-${Date.now().toString()}.txt`,
+      Buffer.from("Lorem ipsum dolor", "utf-8")
+    );
 
     expect(result.succinctProperties).to.have.property(
       "cmis:contentStreamLength"
