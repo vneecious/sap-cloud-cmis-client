@@ -162,6 +162,22 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     expect(result).to.have.property("results");
   });
 
+  it("should create a secondary type", async () => {
+    const typeName = `my:ST${Date.now()}`;
+    try {
+      const result = await cmisClient.createSecondaryType({
+        id: typeName,
+        description: "a secondary type test",
+        displayName: typeName,
+        localName: typeName,
+        localNamespace: "my.org",
+        queryName: typeName,
+      });
+    } catch (erro) {
+      console.warn(erro.response.data);
+    }
+  });
+
   it("should update the properties of an object", async () => {
     const oldName = document.succinctProperties["cmis:name"];
     const newName = `${oldName}-updated`;

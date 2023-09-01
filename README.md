@@ -13,7 +13,7 @@ CMIS Methods:
 - [x] CreateFavorite
 - [x] CreateFolder
 - [x] CreateLink
-- [ ] CreateSecondaryType
+- [x] CreateSecondaryType
 - [ ] CreateShare
 - [ ] DeleteObject
 - [ ] DeletePermanently

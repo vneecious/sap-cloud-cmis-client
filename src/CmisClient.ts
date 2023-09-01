@@ -14,23 +14,14 @@ import { Object as CmisFolder } from "./generated/CreateFolderApi";
 import { Object as CmisQuery } from "./generated/CMISQueryApi";
 import { Object as CmisDocument } from "./generated/CreateDocumentApi";
 
-export type GlobalParameters = {
-  _charset?: string;
-  succinct?: boolean;
-};
-
-export type ReadOptions = {
-  cmisProperties?: Record<any, string | string[]>;
-};
-
-export type WriteOptions = {
-  directoryPath?: string;
-} & ReadOptions;
-
-export type InputAcl = {
-  addACEPrincipal: string;
-  addACEPermission: Array<string>;
-};
+import {
+  GlobalParameters,
+  ReadOptions,
+  WriteOptions,
+  AddAclProperty,
+  CreateSecondaryType,
+} from "./types";
+import { CreateSecondaryType as CreateSecondaryTypeConstants } from "./util/Constants";
 
 export class CmisClient {
   private repositories: CmisRepository;
@@ -61,7 +52,7 @@ export class CmisClient {
    */
   async addAclProperty(
     objectId: string,
-    acl: Array<InputAcl>,
+    acl: Array<AddAclProperty.InputAcl>,
     options: {
       ACLPropagation?: "objectonly" | "propagate" | "repositorydetermined";
     } & ReadOptions = {}
@@ -271,6 +262,53 @@ export class CmisClient {
   }
 
   /**
+   * It creates a document object of the speciﬁed type (given by the cmis:objectTypeId property) in the speciﬁed location.
+   * @param document - document data
+   * @param directoryPath - The folder path to create the document object.
+   * @returns
+   */
+  async createDocument(
+    filename: string,
+    content: any,
+    options: { includeAllowableActions?: boolean } & WriteOptions = {}
+  ): Promise<CmisDocument> {
+    const { cmisProperties, ...optionalParameters } = options;
+    const allCmisProperties = transformObjectToCmisProperties({
+      "cmis:name": filename,
+      "cmis:objectTypeId": "cmis:document",
+      ...(cmisProperties || {}),
+    });
+
+    const bodyData = {
+      cmisaction: "createDocument",
+      ...allCmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const requestBody = transformJsonToFormData(bodyData);
+    if (content) requestBody.append("content", content, filename);
+
+    const api = CmisGeneratedApi.CreateDocumentApi.CreateDocumentApi;
+    if (!options.directoryPath) {
+      return api
+        .createBrowserRootByRepositoryId(
+          this.defaultRepository.repositoryId,
+          requestBody
+        )
+        .execute(this.destination);
+    } else {
+      return api
+        .createBrowserRootByRepositoryIdAndDirectoryPath(
+          this.defaultRepository.repositoryId,
+          options.directoryPath,
+          requestBody
+        )
+        .execute(this.destination);
+    }
+  }
+
+  /**
    * It creates copy of document from the source folder into a targeted folder without changing any properties of the document.
    * @param sourceId - The object that should be copied
    * @param targetFolderId - the folder where to copy should be placed
@@ -321,24 +359,6 @@ export class CmisClient {
         "cmis:secondaryObjectTypeIds": ["sap:createFavorite"],
       },
     });
-  }
-
-  /**
-   * Provides detailed information of the given Content Management Interoperability Services(CMIS) repository linked to and instance and all the necessary information for connecting to it.
-   * If no repositoryId is given, fetch all of them and set the first one as the default.
-   */
-  async fetchRepository(repositoryId?: string): Promise<CmisRepository> {
-    const api = CmisGeneratedApi.ServiceApi.FetchRepositoryApi;
-
-    this.repositories = await api.getBrowser().execute(this.destination);
-
-    if (repositoryId) {
-      this.setDefaultRepository(repositoryId);
-    } else {
-      this.defaultRepository = Object.values(this.repositories)[0];
-    }
-
-    return this.repositories;
   }
 
   /**
@@ -405,51 +425,65 @@ export class CmisClient {
       },
     });
   }
-  /**
-   * It creates a document object of the speciﬁed type (given by the cmis:objectTypeId property) in the speciﬁed location.
-   * @param document - document data
-   * @param directoryPath - The folder path to create the document object.
-   * @returns
-   */
-  async createDocument(
-    filename: string,
-    content: any,
-    options: { includeAllowableActions?: boolean } & WriteOptions = {}
-  ): Promise<CmisDocument> {
-    const { cmisProperties, ...optionalParameters } = options;
-    const allCmisProperties = transformObjectToCmisProperties({
-      "cmis:name": filename,
-      "cmis:objectTypeId": "cmis:document",
-      ...(cmisProperties || {}),
-    });
 
-    const bodyData = {
-      cmisaction: "createDocument",
-      ...allCmisProperties,
-      ...this.globalParameters,
-      ...optionalParameters,
+  /**
+   * A secondary type deﬁnes a set of properties that can be dynamically added to and removed from objects. That is, an object can get and lose additional properties that are not deﬁned by its primary type during its lifetime. Multiple secondary types can be applied to the same object at the same time.
+   * @param secondaryType - Object containing all the data required for the type creation
+   * @returns Response data.
+   */
+  async createSecondaryType(
+    secondaryType: CreateSecondaryType.InputSecondaryType
+  ): Promise<CmisDocument> {
+    const propertyDefinitions: CreateSecondaryType.PropertyDefinitions = {};
+    const { DEFAULT_SECONDARY_TYPE, DEFAULT_PROPERTY_DEFINITION } =
+      CreateSecondaryTypeConstants;
+
+    for (const key in secondaryType.propertyDefinitions) {
+      propertyDefinitions[key] = {
+        ...DEFAULT_PROPERTY_DEFINITION,
+        ...secondaryType.propertyDefinitions[key],
+      };
+    }
+
+    const finalSecondaryType: CreateSecondaryType.SecondaryType = {
+      ...DEFAULT_SECONDARY_TYPE,
+      ...secondaryType,
+      propertyDefinitions,
     };
 
-    const requestBody = transformJsonToFormData(bodyData);
-    if (content) requestBody.append("content", content, filename);
+    const requestBody = {
+      cmisaction: "createType",
+      type: JSON.stringify(finalSecondaryType),
+      ...this.globalParameters,
+    };
 
-    const api = CmisGeneratedApi.CreateDocumentApi.CreateDocumentApi;
-    if (!options.directoryPath) {
-      return api
-        .createBrowserRootByRepositoryId(
-          this.defaultRepository.repositoryId,
-          requestBody
-        )
-        .execute(this.destination);
+    const api = CmisGeneratedApi.CreateSecondaryTypeApi.CreateTypeApi;
+
+    return api
+      .createBrowserByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .middleware(middlewares.jsonToFormData)
+      .execute(this.destination);
+  }
+
+  /**
+   * Provides detailed information of the given Content Management Interoperability Services(CMIS) repository linked to and instance and all the necessary information for connecting to it.
+   * If no repositoryId is given, fetch all of them and set the first one as the default.
+   */
+  async fetchRepository(repositoryId?: string): Promise<CmisRepository> {
+    const api = CmisGeneratedApi.ServiceApi.FetchRepositoryApi;
+
+    this.repositories = await api.getBrowser().execute(this.destination);
+
+    if (repositoryId) {
+      this.setDefaultRepository(repositoryId);
     } else {
-      return api
-        .createBrowserRootByRepositoryIdAndDirectoryPath(
-          this.defaultRepository.repositoryId,
-          options.directoryPath,
-          requestBody
-        )
-        .execute(this.destination);
+      this.defaultRepository = Object.values(this.repositories)[0];
     }
+
+    return this.repositories;
   }
 
   /**
