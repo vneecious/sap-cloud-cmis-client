@@ -139,15 +139,22 @@ describe("CmisClient integration with BTP - DMS Service", function () {
    *   - message: "Method 'getLogonName' is not supported for grant type 'client_credentials'client_credentials"
    * TODO: Revisit and check once the service issue is resolved.
    */
-  it("should set an object as favorite", async () => {
-    const result = await cmisClient.createFavorite(
-      document.succinctProperties["cmis:objectId"]
-    );
-  }).skip();
+  // it("should set an object as favorite", async () => {
+  //   const result = await cmisClient.createFavorite(
+  //     document.succinctProperties["cmis:objectId"]
+  //   );
+  // });
 
   it("should create a folder in root", async () => {
     const result = await cmisClient.createFolder(`folder-${Date.now()}`);
     expect(result).to.have.property("succinctProperties");
+  });
+
+  it("should create link", async () => {
+    const result = await cmisClient.createLink("http://sap.com", "SAP");
+    expect(result.succinctProperties)
+      .to.have.property("cmis:objectTypeId")
+      .eq("sap:link");
   });
 
   it("should run queries", async () => {

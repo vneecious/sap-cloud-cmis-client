@@ -122,7 +122,7 @@ export class CmisClient {
     };
 
     const requestBody = transformJsonToFormData(bodyData);
-    requestBody.append("content", content, filename);
+    if (content) requestBody.append("content", content, filename);
 
     const api = CmisGeneratedApi.AppendContentStreamApi.AppendContentStreamApi;
     return api
@@ -388,6 +388,24 @@ export class CmisClient {
   }
 
   /**
+   * It creates a link type object under a specified repository for which the name and URL for the link should be provided.
+   * @param objectId - The object to be updated
+   * @param options
+   * @returns Response data.
+   */
+  async createLink(url: string, title?: string): Promise<CmisDocument> {
+    // Use the provided title or default to the URL if no title is specified
+    const name = title || url;
+
+    return this.createDocument(name, undefined, {
+      cmisProperties: {
+        "cmis:secondaryObjectTypeIds": "sap:createLink",
+        "sap:linkRepositoryId": this.defaultRepository.repositoryId,
+        "sap:linkExternalURL": url,
+      },
+    });
+  }
+  /**
    * It creates a document object of the speciﬁed type (given by the cmis:objectTypeId property) in the speciﬁed location.
    * @param document - document data
    * @param directoryPath - The folder path to create the document object.
@@ -413,7 +431,7 @@ export class CmisClient {
     };
 
     const requestBody = transformJsonToFormData(bodyData);
-    requestBody.append("content", content, filename);
+    if (content) requestBody.append("content", content, filename);
 
     const api = CmisGeneratedApi.CreateDocumentApi.CreateDocumentApi;
     if (!options.directoryPath) {
