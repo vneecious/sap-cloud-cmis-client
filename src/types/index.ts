@@ -1,11 +1,11 @@
 import { CreateSecondaryType as CreateSecondaryTypeConstants } from "src/util/Constants";
 
-export type GlobalParameters = {
+export type BaseOptions = {
   _charset?: string;
   succinct?: boolean;
 };
 
-export type ReadOptions = {
+export type ReadOptions = BaseOptions & {
   cmisProperties?: Record<any, string | string[]>;
 };
 

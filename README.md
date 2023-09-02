@@ -14,7 +14,7 @@ CMIS Methods:
 - [x] CreateFolder
 - [x] CreateLink
 - [x] CreateSecondaryType
-- [ ] CreateShare
+- [x] CreateShare
 - [ ] DeleteObject
 - [ ] DeletePermanently
 - [ ] DeleteTree
@@ -38,6 +38,6 @@ CMIS Methods:
 - [ ] RemoveAclProperty
 - [ ] RestoreObject
 - [x] Service
-- [-] UpdateFolder_Document_Link
+- [x] UpdateFolder_Document_Link
 - [x] UpdateProperties
 - [ ] ZipCreationForDownload

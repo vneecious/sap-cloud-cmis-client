@@ -15,7 +15,7 @@ import { Object as CmisQuery } from "./generated/CMISQueryApi";
 import { Object as CmisDocument } from "./generated/CreateDocumentApi";
 
 import {
-  GlobalParameters,
+  BaseOptions,
   ReadOptions,
   WriteOptions,
   AddAclProperty,
@@ -29,7 +29,7 @@ export class CmisClient {
 
   constructor(
     private readonly destination: HttpDestinationOrFetchOptions,
-    private globalParameters?: GlobalParameters
+    private globalParameters?: BaseOptions
   ) {
     if (!globalParameters) {
       this.globalParameters = {
@@ -352,6 +352,7 @@ export class CmisClient {
    * of the object.
    * @param objectId - object that will be marked as favorite
    * @returns Response data.
+   * @todo DMS is returning HTTP 500. Revisit and check once the service issue is resolved.
    */
   async createFavorite(objectId: string): Promise<CmisDocument> {
     return this.updateProperties(objectId, {
@@ -413,11 +414,16 @@ export class CmisClient {
    * @param options
    * @returns Response data.
    */
-  async createLink(url: string, title?: string): Promise<CmisDocument> {
+  async createLink(
+    url: string,
+    title?: string,
+    options: BaseOptions = {}
+  ): Promise<CmisDocument> {
     // Use the provided title or default to the URL if no title is specified
     const name = title || url;
 
     return this.createDocument(name, undefined, {
+      ...options,
       cmisProperties: {
         "cmis:secondaryObjectTypeIds": "sap:createLink",
         "sap:linkRepositoryId": this.defaultRepository.repositoryId,
@@ -432,7 +438,8 @@ export class CmisClient {
    * @returns Response data.
    */
   async createSecondaryType(
-    secondaryType: CreateSecondaryType.InputSecondaryType
+    secondaryType: CreateSecondaryType.InputSecondaryType,
+    options: BaseOptions = {}
   ): Promise<CmisDocument> {
     const propertyDefinitions: CreateSecondaryType.PropertyDefinitions = {};
     const { DEFAULT_SECONDARY_TYPE, DEFAULT_PROPERTY_DEFINITION } =
@@ -455,6 +462,7 @@ export class CmisClient {
       cmisaction: "createType",
       type: JSON.stringify(finalSecondaryType),
       ...this.globalParameters,
+      ...options,
     };
 
     const api = CmisGeneratedApi.CreateSecondaryTypeApi.CreateTypeApi;
@@ -466,6 +474,25 @@ export class CmisClient {
       )
       .middleware(middlewares.jsonToFormData)
       .execute(this.destination);
+  }
+
+  /**
+   * It creates a folder of sap:share type under the specified repository. It uses a sharing (Collaboration enabled) repository.
+   * @param name - Name of the share
+   * @param options
+   * @returns Response data.
+   * @todo DMS is returning HTTP 400. Revisit and check once the service issue is resolved.
+   */
+  async createShare(
+    name: string,
+    options: BaseOptions = {}
+  ): Promise<CmisDocument> {
+    return this.createFolder(name, {
+      ...options,
+      cmisProperties: {
+        "cmis:objectTypeId": "sap:share",
+      },
+    });
   }
 
   /**
@@ -545,7 +572,7 @@ export class CmisClient {
    * Set parameters that should be sent in all requests
    * @param value - Default Options
    */
-  setGlobalParameters(value: GlobalParameters): void {
+  setGlobalParameters(value: BaseOptions): void {
     this.globalParameters = value;
   }
 
