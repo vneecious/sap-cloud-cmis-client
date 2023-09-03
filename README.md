@@ -21,7 +21,7 @@ CMIS Methods:
 - [x] DownloadFile
 - [x] GenerateThumbnail
 - [x] GetAclProperty
-- [ ] GetAllowableActions
+- [x] GetAllowableActions
 - [ ] GetChildren
 - [ ] GetDeletedChildren
 - [ ] GetDescendants

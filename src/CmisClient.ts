@@ -825,6 +825,43 @@ export class CmisClient {
   }
 
   /**
+   * Retrieves the list of allowable actions for a specified object.
+   * This method helps determine the actions that can be performed on the object,
+   * based on the object's ACLs (Access Control Lists).
+   *
+   * @param objectId - Identifier of the object for which allowable actions should be fetched.
+   * @param options - Configuration options for the request.
+   * @property {string} [options.filter] - List of property query names to return (e.g., 'cmis:name,amount').
+   *                                       For secondary type properties, follow the format: <secondaryTypeQueryName>.<propertyQueryName>.
+   *
+   * @returns A promise that resolves to the allowable actions of the specified object.
+   */
+  async getAllowableActions(
+    objectId: string,
+    options: {
+      filter?: string;
+    } & BaseOptions = {
+      filter: "*",
+    }
+  ): Promise<CmisGetAclProperty> {
+    const api = CmisGeneratedApi.GetAllowableActionsApi.GetAllowableActionsApi;
+
+    const requestBody = {
+      objectId,
+      cmisselector: "allowableActions",
+      ...this.globalParameters,
+      ...options,
+    };
+
+    return api
+      .getBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .execute(this.destination);
+  }
+
+  /**
    * Updates properties and secondary types of the specified object.
    * All properties passed to updateProperties be updated to their new values.
    * Properties that are passed without a value will be set to their default value or un-set if no default value is defined.
