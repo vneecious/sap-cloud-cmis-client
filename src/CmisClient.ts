@@ -457,19 +457,39 @@ export class CmisClient {
   async createLink(
     url: string,
     title?: string,
-    options: BaseOptions = {}
+    options: WriteOptions = {}
   ): Promise<CmisDocument> {
-    // Use the provided title or default to the URL if no title is specified
-    const name = title || url;
-
-    return this.createDocument(name, undefined, {
-      ...options,
-      cmisProperties: {
-        "cmis:secondaryObjectTypeIds": "sap:createLink",
-        "sap:linkRepositoryId": this.defaultRepository.repositoryId,
-        "sap:linkExternalURL": url,
-      },
+    const requiredCmisPropeties = transformObjectToCmisProperties({
+      "cmis:name": title || url,
+      "cmis:objectTypeId": "cmis:document",
+      "cmis:secondaryObjectTypeIds": "sap:createLink",
+      "sap:linkRepositoryId": this.defaultRepository.repositoryId,
+      "sap:linkExternalURL": url,
     });
+
+    const { cmisProperties, ...optionalParameters } = options;
+
+    const allCmisProperties = {
+      ...transformObjectToCmisProperties(cmisProperties || {}),
+      ...requiredCmisPropeties,
+    };
+
+    const requestBody = {
+      cmisaction: "createDocument",
+      ...allCmisProperties,
+      ...this.globalParameters,
+      ...optionalParameters,
+    };
+
+    const api = CmisGeneratedApi.CreateLinkApi.CreateLinkApi;
+
+    return api
+      .createBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .middleware(middlewares.jsonToFormData)
+      .execute(this.destination);
   }
 
   /**

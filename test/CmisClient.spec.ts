@@ -150,7 +150,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     expect(result).to.have.property("succinctProperties");
   });
 
-  it("should create link", async () => {
+  it.only("should create link", async () => {
     const result = await cmisClient.createLink(
       "http://sap.com",
       `SAP-${Date.now()}`
@@ -225,7 +225,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     );
   });
 
-  it.only("should download a file", async () => {
+  it("should download a file", async () => {
     const filename = `test-downloadFile-${Date.now().toString()}.txt`;
     const fileContent = "Lorem ipsum dolor";
     const createdDocument = await cmisClient.createDocument(

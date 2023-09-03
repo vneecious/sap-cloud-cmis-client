@@ -6,7 +6,7 @@ export * as CheckInDocumentApi from "./CheckInDocumentApi";
 export * as CheckOutDocumentApi from "./CheckOutDocumentApi";
 export * as CreateDocumentfromSourceApi from "./CreateDocumentFromSourceApi";
 export * as CreateFolderApi from "./CreateFolderApi";
-// export * as CreateLinkApi from "./CreateLinkApi";
+export * as CreateLinkApi from "./CreateLinkApi";
 export * as CreateSecondaryTypeApi from "./CreateSecondaryTypeApi";
 export * as CreateDocumentApi from "./CreateDocumentApi";
 export * as DeleteObjectApi from "./DeleteObjectApi";
