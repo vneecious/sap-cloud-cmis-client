@@ -370,7 +370,7 @@ export class CmisClient {
   /**
    * Creates a favorite link object for a specified object if a favorites repository is configured.
    *
-   * This is not a standard CMIS method. Instead, it simply adds "sap:createFavorite" as a secondary
+   * This is not a standard CMIS service. Instead, it simply adds "sap:createFavorite" as a secondary
    * object type ID to the specified object.
    *
    * ⚠️ **[CAUTION]**: This method is temporarily deprecated due to an issue with the SAP Document Management Service
@@ -753,6 +753,23 @@ export class CmisClient {
         this.defaultRepository.repositoryId,
         requestBody
       )
+      .execute(this.destination);
+  }
+
+  /**
+   * Generates a thumbnail for a specified document based on its ID.
+   *
+   * @param objectId - The unique identifier of the document for which the thumbnail is to be generated.
+   * @returns A promise that resolves to the URL or path of the generated thumbnail.
+   */
+  async generateThumbnail(objectId: string): Promise<string> {
+    const api = CmisGeneratedApi.GenerateThumbnailApi.GenerateThumbnailApi;
+
+    return api
+      .createBrowserRootByRepositoryId(this.defaultRepository.repositoryId, {
+        cmisAction: "generateThumbnail",
+        objectId,
+      })
       .execute(this.destination);
   }
 

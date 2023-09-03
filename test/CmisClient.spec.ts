@@ -5,6 +5,8 @@ import {
 import { expect } from "chai";
 import { CmisClient } from "../src/CmisClient";
 import { loadEnv } from "@sap/xsenv";
+import fs from "fs";
+import path from "path";
 
 import { Object as CmisDocument } from "../src/generated/CreateDocumentApi";
 
@@ -150,7 +152,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     expect(result).to.have.property("succinctProperties");
   });
 
-  it.only("should create link", async () => {
+  it("should create link", async () => {
     const result = await cmisClient.createLink(
       "http://sap.com",
       `SAP-${Date.now()}`
@@ -238,5 +240,18 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     );
 
     expect(result).be.eq(fileContent);
+  });
+
+  // NOTE: The repository MUST be onboarded with the property `isThumbnailEnabled` set to `true`
+  // in order for this test to succeed.
+  it("should generate a thumbnail", async () => {
+    const filePath = path.join(__dirname, "chico.jpg");
+    const content = fs.createReadStream(filePath);
+    const fileName = `chico-${Date.now()}.jpg`;
+
+    const createdDocument = await cmisClient.createDocument(fileName, content);
+    await cmisClient.generateThumbnail(
+      createdDocument.succinctProperties["cmis:objectId"]
+    );
   });
 });
