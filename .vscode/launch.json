@@ -12,10 +12,14 @@
             "args": [
                 "-r",
                 "ts-node/register",
-                "${workspaceRoot}/**/*.spec.ts"
+                "${workspaceRoot}/test/*.spec.ts"
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "cwd": "${workspaceRoot}",
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ]
         }
     ]
 }

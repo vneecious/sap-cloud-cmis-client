@@ -15,9 +15,9 @@ CMIS Methods:
 - [x] CreateLink
 - [x] CreateSecondaryType
 - [x] CreateShare
-- [ ] DeleteObject
-- [ ] DeletePermanently
-- [ ] DeleteTree
+- [x] DeleteObject
+- [x] DeletePermanently
+- [x] DeleteTree
 - [ ] DownloadFile
 - [ ] GenerateThumbnail
 - [ ] GetAclProperty

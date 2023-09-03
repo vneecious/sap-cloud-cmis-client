@@ -1,13 +1,13 @@
 import { expect } from "chai";
 import sinon from "sinon";
-import {
-  InputObject,
-  CmisProperty,
-  transformToQueryArrayFormat,
-  transformObjectToCmisProperties,
-  transformJsonToFormData,
-} from "./Transform";
 import FormData from "form-data";
+import {
+  CmisProperty,
+  InputObject,
+  transformJsonToFormData,
+  transformObjectToCmisProperties,
+  transformToQueryArrayFormat,
+} from "../src/util/Transform";
 
 describe("Transform Utility", () => {
   it("transformInputToBody: should transform input to expected output", () => {

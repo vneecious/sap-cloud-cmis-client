@@ -3,10 +3,10 @@ import {
   Destination,
 } from "@sap-cloud-sdk/connectivity";
 import { expect } from "chai";
-import { CmisClient } from "./CmisClient";
+import { CmisClient } from "../src/CmisClient";
 import { loadEnv } from "@sap/xsenv";
 
-import { Object as CmisDocument } from "./generated/CreateDocumentApi";
+import { Object as CmisDocument } from "../src/generated/CreateDocumentApi";
 
 describe("CmisClient integration with BTP - DMS Service", function () {
   this.timeout(10000);
@@ -25,7 +25,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   });
 
   it("should load repositories from DMS", async () => {
-    const result = await cmisClient.fetchRepository();
+    const result = await cmisClient.getRepositories();
     const repository = Object.values(result)[0];
     expect(repository).to.have.property("repositoryId");
   });
@@ -55,7 +55,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
 
   let documentCheckOut;
   it("should checkout the created document", async () => {
-    const result = await cmisClient.checkOutDocument(
+    const result = await cmisClient.checkOut(
       document.succinctProperties["cmis:objectId"]
     );
 
@@ -74,7 +74,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   });
 
   it("should checkout the again", async () => {
-    const result = await cmisClient.checkOutDocument(
+    const result = await cmisClient.checkOut(
       document.succinctProperties["cmis:objectId"]
     );
 
@@ -107,7 +107,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   });
 
   it("should checkin the modified document", async () => {
-    const result = await cmisClient.checkInDocument(
+    const result = await cmisClient.checkIn(
       document.succinctProperties["cmis:objectId"]
     );
 
@@ -137,14 +137,16 @@ describe("CmisClient integration with BTP - DMS Service", function () {
    *   - message: "Method 'getLogonName' is not supported for grant type 'client_credentials'client_credentials"
    * TODO: Revisit and check once the service issue is resolved.
    */
-  // it("should set an object as favorite", async () => {
-  //   const result = await cmisClient.createFavorite(
-  //     document.succinctProperties["cmis:objectId"]
-  //   );
-  // });
+  it.skip("should set an object as favorite", async () => {
+    const result = await cmisClient.createFavorite(
+      document.succinctProperties["cmis:objectId"]
+    );
+  });
 
+  let folder;
   it("should create a folder in root", async () => {
     const result = await cmisClient.createFolder(`folder-${Date.now()}`);
+    folder = result;
     expect(result).to.have.property("succinctProperties");
   });
 
@@ -159,14 +161,16 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   });
 
   it("should run queries", async () => {
-    const result = await cmisClient.cmisQuery("select * from cmis:document");
+    const result = await cmisClient.cmisQuery("select * from cmis:document", {
+      maxItems: 10,
+    });
     expect(result).to.have.property("results");
   });
 
   it("should create a secondary type", async () => {
     const typeName = `my:ST${Date.now()}`;
     try {
-      const result = await cmisClient.createSecondaryType({
+      const result = await cmisClient.createType({
         id: typeName,
         description: "a secondary type test",
         displayName: typeName,
@@ -199,11 +203,25 @@ describe("CmisClient integration with BTP - DMS Service", function () {
    *   - Unauthorized
    * TODO: Revisit and check once the service issue is resolved.
    */
-  // it("should create a share object", async () => {
-  //   try {
-  //     const result = await cmisClient.createShare("my share");
-  //   } catch (error) {
-  //     debugger;
-  //   }
-  // });
+  it.skip("should create a share object", async () => {
+    const result = await cmisClient.createShare("my share");
+  });
+
+  it("should delete an object", async () => {
+    const result = await cmisClient.deleteObject(
+      document.succinctProperties["cmis:objectId"]
+    );
+  });
+
+  it("should delete permanently an object", async () => {
+    const result = await cmisClient.deletePermanently(
+      document.succinctProperties["cmis:objectId"]
+    );
+  });
+
+  it("should delete a tree", async () => {
+    const result = await cmisClient.deleteTree(
+      folder.succinctProperties["cmis:objectId"]
+    );
+  });
 });
