@@ -13,6 +13,7 @@ import { Object as CmisRepository } from "./generated/ServiceApi";
 import { Object as CmisFolder } from "./generated/CreateFolderApi";
 import { Object as CmisQuery } from "./generated/CMISQueryApi";
 import { Object as CmisDocument } from "./generated/CreateDocumentApi";
+import { Object as CmisGetAclProperty } from "./generated/GetAclPropertyApi";
 
 import { BaseOptions, WriteOptions, AddAclProperty, CreateType } from "./types";
 import { CreateSecondaryType as CreateSecondaryTypeConstants } from "./util/Constants";
@@ -770,6 +771,56 @@ export class CmisClient {
         cmisAction: "generateThumbnail",
         objectId,
       })
+      .execute(this.destination);
+  }
+
+  /**
+   * Retrieves the Access Control List (ACL) applied to the specified object.
+   * The result can be expressed using only CMIS-defined permissions,
+   * or it may also include repository-specific permissions.
+   *
+   * @param objectId - Identifier of the object for which the ACL should be fetched.
+   * @param options - Configuration options for the request.
+   * @property {string} [options.filter] - List of property query names to return (e.g., 'cmis:name,amount'). For secondary type properties, use the pattern <secondaryTypeQueryName>.<propertyQueryName>.
+   * @property {boolean} [options.includeAllowableActions] - Indicates if allowable actions should be included.
+   * @property {boolean} [options.includeACL] - Indicates if the ACL should be included.
+   * @property {string} [options.renditionFilter] - Defines which renditions to include. Examples:
+   *   - `*`: All renditions.
+   *   - `cmis:thumbnail`: Only thumbnails.
+   *   - `image/*`: All image renditions.
+   *   - `application/pdf,application/x-shockwave-flash`: Web ready renditions.
+   *   - `cmis:none`: No renditions (Default).
+   *
+   * @returns A promise that resolves to the ACL properties of the specified object.
+   */
+  async getACLProperty(
+    objectId: string,
+    options: {
+      filter?: string;
+      includeAllowableActions?: boolean;
+      includeACL?: boolean;
+      renditionFilter?: string;
+    } & BaseOptions = {
+      filter: "*",
+      includeAllowableActions: true,
+      includeACL: true,
+      renditionFilter: "cmis:none",
+    }
+  ): Promise<CmisGetAclProperty> {
+    const api = CmisGeneratedApi.GetAclPropertyApi.GetAclPropertyApi;
+
+    const requestBody = {
+      objectId,
+      cmisselector: "object",
+      ...this.globalParameters,
+      ...options,
+    };
+
+    return api
+      .getBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
       .execute(this.destination);
   }
 

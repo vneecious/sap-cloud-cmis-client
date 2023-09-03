@@ -20,7 +20,7 @@ CMIS Methods:
 - [x] DeleteTree
 - [x] DownloadFile
 - [x] GenerateThumbnail
-- [ ] GetAclProperty
+- [x] GetAclProperty
 - [ ] GetAllowableActions
 - [ ] GetChildren
 - [ ] GetDeletedChildren

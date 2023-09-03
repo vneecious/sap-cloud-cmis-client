@@ -26,7 +26,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     cmisClient = new CmisClient({ destinationName: "sdm-i550329" });
   });
 
-  it.only("should load repositories from DMS", async () => {
+  it("should load repositories from DMS", async () => {
     const result = await cmisClient.getRepositories();
     const repository = Object.values(result)[0];
     expect(repository).to.have.property("repositoryId");
@@ -39,7 +39,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
       Buffer.from("Lorem ipsum dolor", "utf-8")
     );
 
-    document = result.succinctProperties;
+    document = result;
     expect(result.succinctProperties).to.have.property(
       "cmis:contentStreamLength"
     );
@@ -253,5 +253,12 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     await cmisClient.generateThumbnail(
       createdDocument.succinctProperties["cmis:objectId"]
     );
+  });
+
+  it("should get ACL property from an object", async () => {
+    const result = await cmisClient.getACLProperty(
+      document.succinctProperties["cmis:objectId"]
+    );
+    expect(result).to.have.property("acl");
   });
 });

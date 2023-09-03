@@ -15,5 +15,6 @@ export * as DeletePermanentlyApi from "./DeletePermanentlyApi";
 export * as DeleteTreeApi from "./DeleteTreeApi";
 export * as DownloadAFileApi from "./DownloadFileApi";
 export * as GenerateThumbnailApi from "./GenerateThumbnailApi";
+export * as GetAclPropertyApi from "./GetAclPropertyApi";
 export * as ServiceApi from "./ServiceApi";
 export * as UpdatePropertiesApi from "./UpdatePropertiesApi";
