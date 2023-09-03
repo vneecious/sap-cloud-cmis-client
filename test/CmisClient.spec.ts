@@ -24,7 +24,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     cmisClient = new CmisClient({ destinationName: "sdm-i550329" });
   });
 
-  it("should load repositories from DMS", async () => {
+  it.only("should load repositories from DMS", async () => {
     const result = await cmisClient.getRepositories();
     const repository = Object.values(result)[0];
     expect(repository).to.have.property("repositoryId");
@@ -223,5 +223,20 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     const result = await cmisClient.deleteTree(
       folder.succinctProperties["cmis:objectId"]
     );
+  });
+
+  it.only("should download a file", async () => {
+    const filename = `test-downloadFile-${Date.now().toString()}.txt`;
+    const fileContent = "Lorem ipsum dolor";
+    const createdDocument = await cmisClient.createDocument(
+      filename,
+      Buffer.from("Lorem ipsum dolor", "utf-8")
+    );
+
+    const result = await cmisClient.downloadFile(
+      createdDocument.succinctProperties["cmis:objectId"]
+    );
+
+    expect(result).be.eq(fileContent);
   });
 });

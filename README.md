@@ -18,7 +18,7 @@ CMIS Methods:
 - [x] DeleteObject
 - [x] DeletePermanently
 - [x] DeleteTree
-- [ ] DownloadFile
+- [x] DownloadFile
 - [ ] GenerateThumbnail
 - [ ] GetAclProperty
 - [ ] GetAllowableActions

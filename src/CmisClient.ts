@@ -703,6 +703,40 @@ export class CmisClient {
   }
 
   /**
+   * Initiates the download of a specified document. Either directly returns the document content or redirects to a URL for download.
+   *
+   * @param objectId - Unique identifier for the desired document object.
+   * @param options - Configuration options for the download.
+   * @property options.filename - The desired name for the downloaded file. If not provided, the original name will be used.
+   * @property options.download - Specifies the content disposition. "attachment" results in a download prompt, whereas "inline" attempts to display the content within the browser, if possible.
+   *
+   * @returns Promise resolving to the downloaded content or the redirection URL.
+   */
+  async downloadFile(
+    objectId: string,
+    options: {
+      filename?: string;
+      download: "attachment" | "inline";
+    } = { download: "attachment" }
+  ): Promise<any> {
+    const api = CmisGeneratedApi.DownloadAFileApi.DownloadAFileApi;
+
+    const requestBody = {
+      cmisselector: "content",
+      download: options.download,
+      filename: options.filename,
+      objectId,
+    };
+
+    return api
+      .getBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
+      )
+      .execute(this.destination);
+  }
+
+  /**
    * Updates properties and secondary types of the specified object.
    * All properties passed to updateProperties be updated to their new values.
    * Properties that are passed without a value will be set to their default value or un-set if no default value is defined.
