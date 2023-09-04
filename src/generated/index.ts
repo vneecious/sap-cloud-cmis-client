@@ -21,5 +21,6 @@ export * as GetChildrenApi from "./GetChildrenApi";
 export * as GetDeletedChildrenApi from "./GetDeletedChildrenApi";
 export * as GetDescendantsApi from "./GetDescendantsApi";
 export * as GetFolderTreeApi from "./GetFolderTreeApi";
+export * as GetObjectApi from "./GetObjectApi";
 export * as ServiceApi from "./ServiceApi";
 export * as UpdatePropertiesApi from "./UpdatePropertiesApi";

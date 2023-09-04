@@ -8,23 +8,24 @@ import {
   transformJsonToFormData,
 } from "./util/Transform";
 
-import { Object as CmisAddAclProperty } from "./generated/AddAclPropertyApi";
-import { Object as CmisRepository } from "./generated/ServiceApi";
-import { Object as CmisFolder } from "./generated/CreateFolderApi";
-import { Object as CmisQuery } from "./generated/CMISQueryApi";
-import { Object as CmisDocument } from "./generated/CreateDocumentApi";
-import { Object as CmisGetAclProperty } from "./generated/GetAclPropertyApi";
-import { Object as CmisGetChildren } from "./generated/GetChildrenApi";
-import { ApiResponse as CmisGetDeletedChildren } from "./generated/GetDeletedChildrenApi";
-import { Object as CmisGetDescendants } from "./generated/GetDescendantsApi";
-import { Object as CmisGetFolderTree } from "./generated/GetFolderTreeApi";
+import { Object as AddAclPropertyResponse } from "./generated/AddAclPropertyApi";
+import { Object as RepositoryResponse } from "./generated/ServiceApi";
+import { Object as CreateFolderResponse } from "./generated/CreateFolderApi";
+import { Object as CmisQueryResponse } from "./generated/CMISQueryApi";
+import { Object as CreateDocumentResponse } from "./generated/CreateDocumentApi";
+import { Object as GetAclPropertyResonse } from "./generated/GetAclPropertyApi";
+import { Object as GetChildrenResonse } from "./generated/GetChildrenApi";
+import { ApiResponse as GetDeletedChildrenResponse } from "./generated/GetDeletedChildrenApi";
+import { Object as GetDescendantsResponse } from "./generated/GetDescendantsApi";
+import { Object as GetFolderTreeResponse } from "./generated/GetFolderTreeApi";
+import { Object as GetObjectResponse } from "./generated/GetObjectApi";
 
 import { BaseOptions, WriteOptions, AddAclProperty, CreateType } from "./types";
 import { CreateSecondaryType as CreateSecondaryTypeConstants } from "./util/Constants";
 
 export class CmisClient {
-  private repositories: CmisRepository;
-  private defaultRepository: CmisRepository;
+  private repositories: RepositoryResponse;
+  private defaultRepository: RepositoryResponse;
 
   constructor(
     private readonly destination: HttpDestinationOrFetchOptions,
@@ -62,7 +63,7 @@ export class CmisClient {
     options: BaseOptions & {
       ACLPropagation?: "objectonly" | "propagate" | "repositorydetermined";
     } = { ACLPropagation: "repositorydetermined" }
-  ): Promise<CmisAddAclProperty> {
+  ): Promise<AddAclPropertyResponse> {
     const formattedAddACEs = transformToQueryArrayFormat(addACEs);
     const requestBody = {
       cmisaction: "applyAcl",
@@ -98,7 +99,7 @@ export class CmisClient {
     filename: string,
     contentStream: any,
     options: BaseOptions & { isLastChunk?: boolean } = { isLastChunk: false }
-  ): Promise<CmisDocument> {
+  ): Promise<CreateDocumentResponse> {
     const bodyData = {
       cmisaction: "appendContent",
       objectId,
@@ -139,7 +140,7 @@ export class CmisClient {
    * @property {number} [options.maxItems] - The maximum number of items to return in a response.
    * @property {number} [options.skipCount] - The number of potential results the repository should skip. Defaults to 0.
    *
-   * @returns {Promise<CmisQuery>} - Returns the result of the CMIS query.
+   * @returns {Promise<CmisQueryResponse>} - Returns the result of the CMIS query.
    */
   async cmisQuery(
     statement: string,
@@ -153,7 +154,7 @@ export class CmisClient {
     } = {
       searchAllVersions: false,
     }
-  ): Promise<CmisQuery> {
+  ): Promise<CmisQueryResponse> {
     const parameters = {
       cmisSelector: "query",
       q: encodeURIComponent(statement),
@@ -217,7 +218,7 @@ export class CmisClient {
       major: true,
       checkinComment: "not set",
     }
-  ): Promise<CmisDocument> {
+  ): Promise<CreateDocumentResponse> {
     const { cmisProperties, ...optionalParameters } = options;
     const allCmisProperties = {
       ...transformObjectToCmisProperties(cmisProperties || {}),
@@ -253,7 +254,7 @@ export class CmisClient {
     options: {
       includeAllowableActions?: boolean;
     } & BaseOptions = {}
-  ): Promise<CmisDocument> {
+  ): Promise<CreateDocumentResponse> {
     const requestBody = {
       cmisaction: "checkOut",
       objectId,
@@ -290,7 +291,7 @@ export class CmisClient {
     options: WriteOptions & {
       folderPath?: string;
     } = {}
-  ): Promise<CmisDocument> {
+  ): Promise<CreateDocumentResponse> {
     const { cmisProperties, ...optionalParameters } = options;
     const allCmisProperties = transformObjectToCmisProperties({
       "cmis:name": filename,
@@ -345,7 +346,7 @@ export class CmisClient {
     options: WriteOptions & {
       folderPath?: string;
     } = {}
-  ): Promise<CmisDocument> {
+  ): Promise<CreateDocumentResponse> {
     const { cmisProperties, ...optionalParameters } = options;
     const allCmisProperties = {
       ...transformObjectToCmisProperties(cmisProperties || {}),
@@ -389,7 +390,7 @@ export class CmisClient {
    *
    * @todo Revisit this method and address the service issue once it's fixed.
    */
-  async createFavorite(objectId: string): Promise<CmisDocument> {
+  async createFavorite(objectId: string): Promise<CreateDocumentResponse> {
     return this.updateProperties(objectId, {
       cmisProperties: {
         "cmis:secondaryObjectTypeIds": ["sap:createFavorite"],
@@ -411,7 +412,7 @@ export class CmisClient {
     options: WriteOptions & {
       folderPath?: string;
     } = {}
-  ): Promise<CmisFolder> {
+  ): Promise<CreateFolderResponse> {
     const { cmisProperties, ...optionalParameters } = options;
     const allCmisProperties = transformObjectToCmisProperties({
       "cmis:name": name,
@@ -463,7 +464,7 @@ export class CmisClient {
     url: string,
     title?: string,
     options: WriteOptions = {}
-  ): Promise<CmisDocument> {
+  ): Promise<CreateDocumentResponse> {
     const requiredCmisPropeties = transformObjectToCmisProperties({
       "cmis:name": title || url,
       "cmis:objectTypeId": "cmis:document",
@@ -511,7 +512,7 @@ export class CmisClient {
   async createType(
     type: CreateType.TypeInput,
     options: BaseOptions = {}
-  ): Promise<CmisDocument> {
+  ): Promise<CreateDocumentResponse> {
     const propertyDefinitions: CreateType.PropertyDefinitions = {};
     const { DEFAULT_SECONDARY_TYPE, DEFAULT_PROPERTY_DEFINITION } =
       CreateSecondaryTypeConstants;
@@ -567,7 +568,7 @@ export class CmisClient {
   async createShare(
     name: string,
     options: BaseOptions = {}
-  ): Promise<CmisDocument> {
+  ): Promise<CreateDocumentResponse> {
     return this.createFolder(name, {
       ...options,
       cmisProperties: {
@@ -623,7 +624,7 @@ export class CmisClient {
    * @param objectId - Object that should be permanently deleted
    * @returns
    */
-  async deletePermanently(objectId: string): Promise<CmisDocument> {
+  async deletePermanently(objectId: string): Promise<CreateDocumentResponse> {
     const api = CmisGeneratedApi.DeletePermanentlyApi.DeletePermanentlyApi;
 
     return api
@@ -687,7 +688,7 @@ export class CmisClient {
    *
    * @returns A promise resolving to the details of the available repositories.
    */
-  async getRepositories(repositoryId?: string): Promise<CmisRepository> {
+  async getRepositories(repositoryId?: string): Promise<RepositoryResponse> {
     const api = CmisGeneratedApi.ServiceApi.FetchRepositoryApi;
 
     this.repositories = await api.getBrowser().execute(this.destination);
@@ -710,14 +711,14 @@ export class CmisClient {
    *
    * @returns Details of the specified repository.
    */
-  getRepositoryInfo(repositoryId: string): CmisRepository {
+  getRepositoryInfo(repositoryId: string): RepositoryResponse {
     if (!this.repositories) {
       throw new Error(
         "Repositories not initialized. Please execute CmisClient.getRepositories() first."
       );
     }
 
-    const repository: CmisRepository = this.repositories[repositoryId];
+    const repository: RepositoryResponse = this.repositories[repositoryId];
     if (!repository) {
       throw new Error(
         `No repository found for the provided ID: ${repositoryId}`
@@ -810,7 +811,7 @@ export class CmisClient {
       includeACL: true,
       renditionFilter: "cmis:none",
     }
-  ): Promise<CmisGetAclProperty> {
+  ): Promise<GetAclPropertyResonse> {
     const api = CmisGeneratedApi.GetAclPropertyApi.GetAclPropertyApi;
 
     const requestBody = {
@@ -847,7 +848,7 @@ export class CmisClient {
     } & BaseOptions = {
       filter: "*",
     }
-  ): Promise<CmisGetAclProperty> {
+  ): Promise<GetAclPropertyResonse> {
     const api = CmisGeneratedApi.GetAllowableActionsApi.GetAllowableActionsApi;
 
     const requestBody = {
@@ -909,7 +910,7 @@ export class CmisClient {
       includePathSegment: false,
       includeRelationships: "none",
     }
-  ): Promise<CmisGetChildren> {
+  ): Promise<GetChildrenResonse> {
     const api = CmisGeneratedApi.GetChildrenApi.GetChildrenApi;
 
     const requestBody = {
@@ -944,7 +945,7 @@ export class CmisClient {
   async getDeletedChildren(
     objectId?: string,
     options: BaseOptions = {}
-  ): Promise<CmisGetDeletedChildren> {
+  ): Promise<GetDeletedChildrenResponse> {
     const api = CmisGeneratedApi.GetDeletedChildrenApi.GetDeletedChildrenApi;
 
     const requestBody = {
@@ -999,7 +1000,7 @@ export class CmisClient {
       includePathSegment: false,
       includeRelationships: "none",
     }
-  ): Promise<CmisGetDescendants> {
+  ): Promise<GetDescendantsResponse> {
     const api = CmisGeneratedApi.GetDescendantsApi.GetDescendantsApi;
 
     const requestBody = {
@@ -1060,7 +1061,7 @@ export class CmisClient {
       includePathSegment: false,
       includeRelationships: "none",
     }
-  ): Promise<CmisGetFolderTree> {
+  ): Promise<GetFolderTreeResponse> {
     const api = CmisGeneratedApi.GetDescendantsApi.GetDescendantsApi;
 
     const requestBody = {
@@ -1079,6 +1080,76 @@ export class CmisClient {
   }
 
   /**
+   * Retrieves the children of a specified object within the CMIS repository.
+   *
+   * This method is used to get the immediate descendants of a specified folder object. It's especially useful
+   * for navigation or hierarchical content structures.
+   *
+   * @param objectId - Identifier of the object for which children should be fetched.
+   * @param options - Configuration options for the request.
+   * @property {string} [options.filter] - List of property query names to return (e.g., 'cmis:name,description').
+   *                                       For secondary type properties, follow the format: <secondaryTypeQueryName>.<propertyQueryName>.
+   * @property {number} [options.maxItems] - Maximum number of children to return.
+   * @property {number} [options.skipCount] - Number of initial results to skip.
+   * @property {string} [options.orderBy] - A comma-separated list of query names and an optional ascending modiﬁer "ASC" or descending modiﬁer "DESC" for each query name.
+   *                                        If the modiﬁer is not stated, "ASC" is assumed
+   * @property {boolean} [options.includeAllowableActions] - Whether to include allowable actions for each child.
+   * @property {boolean} [options.includePathSegment] - Whether to include the path segment for each child.
+   * @property {"none" | "source" | "target" | "both"} [options.includeRelationships] - Scope of the relationships to include.
+   * @property {string} [options.renditionFilter] - Defines the renditions to be included in the response.
+   *                                               Examples for `renditionFilter`:
+   *                                               - `*`: Include all renditions.
+   *                                               - `cmis:thumbnail`: Include only thumbnails.
+   *                                               - `image/*`: Include all image renditions.
+   *                                               - `application/pdf,application/x-shockwave-flash`: Include web ready renditions.
+   *                                               - `cmis:none`: Exclude all renditions (Default).
+   * @property {boolean} [options.includePolicyIds] - If TRUE, then the Repository MUST return the Ids of the policies applied to the object. Defaults to FALSE.
+   * @returns A promise that resolves to the children of the specified object.
+   */
+  async getObject(
+    objectId: string,
+    options: {
+      filter?: string;
+      maxItems?: number;
+      skipCount?: number;
+      orderBy?: string;
+      includeAllowableActions?: boolean;
+      includePathSegment?: boolean;
+      includeRelationships?: "none" | "source" | "target" | "both";
+      renditionFilter?: string;
+      includePolicyIds?: boolean;
+    } & BaseOptions = {
+      filter: "*",
+      includeAllowableActions: false,
+      includePathSegment: false,
+      includeRelationships: "none",
+      includePolicyIds: false,
+    }
+  ): Promise<GetObjectResponse> {
+    const api = CmisGeneratedApi.GetObjectApi.GetObjectApi;
+
+    const requestBody = {
+      objectId,
+      cmisselector: "object",
+      ...this.globalParameters,
+      ...options,
+    };
+
+    return api
+      .getBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        /**
+         * The `any` type assertion is used here to bypass the "orderBy" property type restriction.
+         * For some reason, it was defined that the possible values are 'none', 'common', or 'custom'.
+         * However, these are the possible values for the repository's capabilityOrderBy.
+         * In this context, "orderBy" should accept a string.
+         */
+        requestBody as any
+      )
+      .execute(this.destination);
+  }
+
+  /**
    * Updates properties and secondary types of the specified object.
    * All properties passed to updateProperties be updated to their new values.
    * Properties that are passed without a value will be set to their default value or un-set if no default value is defined.
@@ -1090,7 +1161,7 @@ export class CmisClient {
   async updateProperties(
     objectId: string,
     options: WriteOptions = {}
-  ): Promise<CmisDocument> {
+  ): Promise<CreateDocumentResponse> {
     const { cmisProperties, ...optionalParameters } = options;
     const allCmisProperties = {
       ...transformObjectToCmisProperties(cmisProperties || {}),
