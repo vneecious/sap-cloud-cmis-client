@@ -30,9 +30,9 @@ CMIS Methods:
 - [x] GetParent
 - [x] GetProperties
 - [x] GetTypeChildren
-- [-] GetTypeDefinition
-- [ ] GetTypeDescendants
-- [ ] GetZipContentStream
+- [x] GetTypeDefinition
+- [x] GetTypeDescendants
+- [x] GetZipContentStream
 - [ ] MassUpload
 - [ ] MoveObject
 - [ ] RemoveAclProperty
@@ -40,4 +40,4 @@ CMIS Methods:
 - [x] Service
 - [x] UpdateFolder_Document_Link
 - [x] UpdateProperties
-- [ ] ZipCreationForDownload
+- [x] ZipContentCreation

@@ -1,6 +1,6 @@
-import { CreateSecondaryType as CreateSecondaryTypeConstants } from "src/util/Constants";
+import { CreateSecondaryType as CreateSecondaryTypeConstants } from 'src/util/Constants';
 
-export type BaseOptions = {
+export type BaseCmisOptions = {
   /**
    * Specifies the character set to be used for the request or operation.
    * It's optional and if not provided, the default character set is used.
@@ -18,6 +18,25 @@ export type BaseOptions = {
    * Default is `false` if not provided.
    */
   includeAllowableActions?: boolean;
+} & BaseOptions;
+
+export type BaseOptions = {
+  /**
+   * Configuration options for the request.
+   */
+  config?: {
+    /**
+     * If set to `true`, the response will return the entire `HttpResponse` object.
+     * Otherwise, only the response body will be returned.
+     */
+    raw?: boolean;
+
+    /**
+     * Custom headers to be included in the request.
+     * Useful for passing additional metadata
+     */
+    customHeaders?: Record<string, string>;
+  };
 };
 
 export type WriteOptions = {
@@ -25,7 +44,7 @@ export type WriteOptions = {
    * The property values that MUST be applied to the object
    */
   cmisProperties?: Record<any, string | string[]>;
-} & BaseOptions;
+} & BaseCmisOptions;
 
 export namespace AddAclProperty {
   export type InputAcl = {
@@ -60,15 +79,15 @@ export namespace CreateType {
 
     /** The data type of the property. */
     propertyType:
-      | "string"
-      | "boolean"
-      | "decimal"
-      | "integer"
-      | "datetime"
-      | "uri";
+      | 'string'
+      | 'boolean'
+      | 'decimal'
+      | 'integer'
+      | 'datetime'
+      | 'uri';
 
     /** Indicates the updatability of the property. */
-    updatability: "readwrite" | "readonly" | "whencheckedout" | "oncreate";
+    updatability: 'readwrite' | 'readonly' | 'whencheckedout' | 'oncreate';
 
     /** Indicates if the property is inherited from a parent type. */
     inherited: false;
@@ -80,7 +99,7 @@ export namespace CreateType {
     required: false;
 
     /** Indicates if the property can have multiple values. */
-    cardinality: "single" | "multi";
+    cardinality: 'single' | 'multi';
 
     /** Indicates if the property can be used in WHERE clauses in a query. */
     queryable: true;
@@ -120,10 +139,10 @@ export namespace CreateType {
     description: string;
 
     /** Indicates that this is a secondary type. */
-    baseId: "cmis:secondary";
+    baseId: 'cmis:secondary';
 
     /** Identifier for the parent type. Always "cmis:secondary" for secondary types. */
-    parentId: "cmis:secondary";
+    parentId: 'cmis:secondary';
 
     /** Indicates if the type can be created by clients. */
     creatable: false;
