@@ -279,6 +279,12 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     const result = await cmisClient.getDeletedChildren();
   });
 
+  it("should create subfolder", async () => {
+    const result = await cmisClient.createFolder(`subFolder1-${Date.now()}`, {
+      folderPath: folder.succinctProperties["cmis:name"],
+    });
+  });
+
   it("should get descendants", async () => {
     const result = await cmisClient.getDescendants(
       folder.succinctProperties["cmis:objectId"]

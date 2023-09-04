@@ -17,10 +17,10 @@ import { Object as CmisGetAclProperty } from "./generated/GetAclPropertyApi";
 import { Object as CmisGetChildren } from "./generated/GetChildrenApi";
 import { ApiResponse as CmisGetDeletedChildren } from "./generated/GetDeletedChildrenApi";
 import { Object as CmisGetDescendants } from "./generated/GetDescendantsApi";
+import { Object as CmisGetFolderTree } from "./generated/GetFolderTreeApi";
 
 import { BaseOptions, WriteOptions, AddAclProperty, CreateType } from "./types";
 import { CreateSecondaryType as CreateSecondaryTypeConstants } from "./util/Constants";
-import { OpenApiRequestBuilder } from "@sap-cloud-sdk/openapi";
 
 export class CmisClient {
   private repositories: CmisRepository;
@@ -1018,6 +1018,61 @@ export class CmisClient {
          * However, these are the possible values for the repository's capabilityOrderBy.
          * In this context, "orderBy" should accept a string.
          */
+        requestBody as any
+      )
+      .execute(this.destination);
+  }
+
+  /**
+   * Retrieves the set of descendant folder objects contained in the specified folder.
+   *
+   * Notes:
+   * - This operation does NOT support paging as defined in the CMIS 1.1 spec. See {@link http://docs.oasis-open.org/cmis/CMIS/v1.1/errata01/os/CMIS-v1.1-errata01-os-complete.html#x1-1510001 CMIS 1.1 - Paging section}.
+   * - The order of returned results is repository-specific.
+   *
+   * @param objectId - Identifier of the folder object whose descendants should be retrieved.
+   * @param options - Configuration options for the request.
+   * @property {number} [options.depth] - Depth in the folder hierarchy to fetch. Defaults to 1.
+   * @property {string} [options.filter] - List of property query names to return (e.g., 'cmis:name,description').
+   *                                      For secondary type properties, format as: <secondaryTypeQueryName>.<propertyQueryName>.
+   * @property {boolean} [options.includeAllowableActions] - If true, includes allowable actions for each descendant.
+   * @property {boolean} [options.includePathSegment] - If true, includes the path segment for each descendant.
+   * @property {"none" | "source" | "target" | "both"} [options.includeRelationships] - Specifies the scope of relationships to be included.
+   * @property {string} [options.renditionFilter] - Specifies renditions to be included in the response. Examples:
+   *                                               - `*`: All renditions.
+   *                                               - `cmis:thumbnail`: Thumbnails only.
+   *
+   * @returns A promise that resolves to an object containing the folder's descendant objects.
+   */
+  async getFolderTree(
+    objectId: string,
+    options: {
+      depth?: number;
+      filter?: string;
+      includeAllowableActions?: boolean;
+      includePathSegment?: boolean;
+      includeRelationships?: "none" | "source" | "target" | "both";
+      renditionFilter?: string;
+    } & BaseOptions = {
+      depth: 1,
+      filter: "*",
+      includeAllowableActions: false,
+      includePathSegment: false,
+      includeRelationships: "none",
+    }
+  ): Promise<CmisGetFolderTree> {
+    const api = CmisGeneratedApi.GetDescendantsApi.GetDescendantsApi;
+
+    const requestBody = {
+      objectId,
+      cmisselector: "descendants",
+      ...this.globalParameters,
+      ...options,
+    };
+
+    return api
+      .getBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
         requestBody as any
       )
       .execute(this.destination);

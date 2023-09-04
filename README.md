@@ -25,7 +25,7 @@ CMIS Methods:
 - [x] GetChildren
 - [x] GetDeletedChildren
 - [x] GetDescendants
-- [ ] GetFolderTree
+- [x] GetFolderTree
 - [ ] GetObject
 - [ ] GetParent
 - [ ] GetProperties

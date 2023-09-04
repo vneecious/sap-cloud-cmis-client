@@ -20,5 +20,6 @@ export * as GetAllowableActionsApi from "./GetAllowableActionsApi";
 export * as GetChildrenApi from "./GetChildrenApi";
 export * as GetDeletedChildrenApi from "./GetDeletedChildrenApi";
 export * as GetDescendantsApi from "./GetDescendantsApi";
+export * as GetFolderTreeApi from "./GetFolderTreeApi";
 export * as ServiceApi from "./ServiceApi";
 export * as UpdatePropertiesApi from "./UpdatePropertiesApi";
