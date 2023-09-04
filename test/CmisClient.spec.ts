@@ -26,7 +26,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     cmisClient = new CmisClient({ destinationName: "sdm-i550329" });
   });
 
-  it.only("should load repositories from DMS", async () => {
+  it("should load repositories from DMS", async () => {
     const result = await cmisClient.getRepositories();
     const repository = Object.values(result)[0];
     expect(repository).to.have.property("repositoryId");
@@ -146,7 +146,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   });
 
   let folder;
-  it.only("should create a folder in root", async () => {
+  it("should create a folder in root", async () => {
     const result = await cmisClient.createFolder(`folder-${Date.now()}`);
     folder = result;
     expect(result).to.have.property("succinctProperties");
@@ -273,5 +273,9 @@ describe("CmisClient integration with BTP - DMS Service", function () {
       folder.succinctProperties["cmis:objectId"]
     );
     expect(result).to.have.property("objects");
+  });
+
+  it("should get deleted children", async () => {
+    const result = await cmisClient.getDeletedChildren();
   });
 });

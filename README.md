@@ -23,7 +23,7 @@ CMIS Methods:
 - [x] GetAclProperty
 - [x] GetAllowableActions
 - [x] GetChildren
-- [-] GetDeletedChildren
+- [x] GetDeletedChildren
 - [ ] GetDescendants
 - [ ] GetFolderTree
 - [ ] GetObject
