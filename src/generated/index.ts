@@ -115,6 +115,11 @@ export {
   Object as GetPropertiesApiResponse,
 } from "./GetPropertiesApi";
 
+export {
+  GetTypeChildrenApi as getTypeChildrenApi,
+  Object as GetTypeChildrenResponse,
+} from "./GetTypeChildrenApi";
+
 import { Object as InternalUpdatePropertiesResponse } from "./UpdatePropertiesApi";
 import { Object as InternalCreateDocumentResponse } from "./CreateDocumentApi";
 import { XOR } from "src/types";

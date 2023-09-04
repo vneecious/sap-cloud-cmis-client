@@ -365,8 +365,7 @@ export class CmisClient {
    * This is not a standard CMIS service. It adds "sap:createFavorite" as a secondary object type
    * ID to the specified object.
    *
-   * ⚠️ **[IMPORTANT]**: This method should only be used for repositories that have been onboarded
-   * as Favorites. For more details, refer to the following documentation:
+   * ⚠️ **[PRE-REQUISITES]**: : This method should only be used for favorites repositories. For more details, refer to the following documentation:
    * @see {@link https://help.sap.com/docs/document-management-service/sap-document-management-service/onboarding-favorites-repository}
    *
    * @param objectId - The ID of the object to be marked as a favorite.
@@ -1222,6 +1221,44 @@ export class CmisClient {
 
     return api
       .getBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody as any
+      )
+      .execute(this.destination);
+  }
+
+  /**
+   * It returns the list of object-types defined for the repository that are children of the specified type based on type Id, repository Id provided
+   *
+   * @param objectId - Identifier of the object for which children should be fetched.
+   * @param options - Configuration options for the request.
+   * @property {string} [options.includePropertiesDefinition] -
+   * @property {number} [options.maxItem] -
+   * @property {number} [options.skipCount] -
+   * @returns A promise that resolves to the children of the given type.
+   */
+  async getTypeChildren(
+    typeId: string,
+    options: {
+      includePropertiesDefinition?: boolean;
+      maxItems?: number;
+      skipCount?: number;
+    } & BaseOptions = {
+      includePropertiesDefinition: false,
+    }
+  ): Promise<CmisGeneratedApi.GetParentResponse> {
+    const api = CmisGeneratedApi.getTypeChildrenApi;
+
+    const requestBody = {
+      typeId,
+      cmisselector: "typeChildren",
+      repositoryId: this.defaultRepository.repositoryId,
+      ...this.globalParameters,
+      ...options,
+    };
+
+    return api
+      .getBrowserByRepositoryId(
         this.defaultRepository.repositoryId,
         requestBody as any
       )
