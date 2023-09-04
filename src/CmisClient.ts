@@ -1246,7 +1246,7 @@ export class CmisClient {
     } & BaseOptions = {
       includePropertiesDefinition: false,
     }
-  ): Promise<CmisGeneratedApi.GetParentResponse> {
+  ): Promise<CmisGeneratedApi.GetTypeChildrenResponse> {
     const api = CmisGeneratedApi.getTypeChildrenApi;
 
     const requestBody = {

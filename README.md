@@ -30,7 +30,7 @@ CMIS Methods:
 - [x] GetParent
 - [x] GetProperties
 - [x] GetTypeChildren
-- [ ] GetTypeDefinition
+- [-] GetTypeDefinition
 - [ ] GetTypeDescendants
 - [ ] GetZipContentStream
 - [ ] MassUpload
