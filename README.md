@@ -22,8 +22,8 @@ CMIS Methods:
 - [x] GenerateThumbnail
 - [x] GetAclProperty
 - [x] GetAllowableActions
-- [ ] GetChildren
-- [ ] GetDeletedChildren
+- [x] GetChildren
+- [-] GetDeletedChildren
 - [ ] GetDescendants
 - [ ] GetFolderTree
 - [ ] GetObject

@@ -15,6 +15,7 @@ import { Object as CmisQuery } from "./generated/CMISQueryApi";
 import { Object as CmisDocument } from "./generated/CreateDocumentApi";
 import { Object as CmisGetAclProperty } from "./generated/GetAclPropertyApi";
 import { Object as CmisGetChildren } from "./generated/GetChildrenApi";
+import { ApiResponse as CmisGetDeletedChildren } from "./generated/GetDeletedChildrenApi";
 
 import { BaseOptions, WriteOptions, AddAclProperty, CreateType } from "./types";
 import { CreateSecondaryType as CreateSecondaryTypeConstants } from "./util/Constants";
@@ -927,6 +928,35 @@ export class CmisClient {
          * In this context, "orderBy" should accept a string.
          */
         requestBody as any
+      )
+      .execute(this.destination);
+  }
+
+  /**
+   * It returns the list of child objects deleted from the specified folder.
+   * This is one of the recycle bin APIs that provides information about the immediate children deleted from a specified folder.
+   * When the folder objectId is not mentioned, the root is considered by default.
+   *
+   * @param objectId - Identifier of the object for which children should be fetched.
+   * @returns A promise that resolves to the children of the specified object.
+   */
+  async getDeletedChildren(
+    objectId?: string,
+    options: BaseOptions = {}
+  ): Promise<CmisGetDeletedChildren> {
+    const api = CmisGeneratedApi.GetDeletedChildrenApi.GetDeletedChildrenApi;
+
+    const requestBody = {
+      objectId,
+      cmisselector: "deletedChildren",
+      ...this.globalParameters,
+      ...options,
+    };
+
+    return api
+      .getBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        requestBody
       )
       .execute(this.destination);
   }
