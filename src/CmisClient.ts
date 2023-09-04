@@ -1103,7 +1103,7 @@ export class CmisClient {
    *                                               - `image/*`: Include all image renditions.
    *                                               - `application/pdf,application/x-shockwave-flash`: Include web ready renditions.
    *                                               - `cmis:none`: Exclude all renditions (Default).
-   * @property {boolean} [options.includePolicyIds] - If TRUE, then the Repository MUST return the Ids of the policies applied to the object. Defaults to FALSE.
+   * @property {boolean} [options.includePolicyIds] - Indicates whether the repository should return the IDs of policies applied to the object. If set to `true`, the repository is required to return these IDs.
    * @returns A promise that resolves to the children of the specified object.
    */
   async getObject(
