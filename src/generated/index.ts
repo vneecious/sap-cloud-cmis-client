@@ -19,5 +19,6 @@ export * as GetAclPropertyApi from "./GetAclPropertyApi";
 export * as GetAllowableActionsApi from "./GetAllowableActionsApi";
 export * as GetChildrenApi from "./GetChildrenApi";
 export * as GetDeletedChildrenApi from "./GetDeletedChildrenApi";
+export * as GetDescendantsApi from "./GetDescendantsApi";
 export * as ServiceApi from "./ServiceApi";
 export * as UpdatePropertiesApi from "./UpdatePropertiesApi";

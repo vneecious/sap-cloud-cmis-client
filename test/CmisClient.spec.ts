@@ -278,4 +278,10 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   it("should get deleted children", async () => {
     const result = await cmisClient.getDeletedChildren();
   });
+
+  it("should get descendants", async () => {
+    const result = await cmisClient.getDescendants(
+      folder.succinctProperties["cmis:objectId"]
+    );
+  });
 });

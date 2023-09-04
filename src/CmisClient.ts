@@ -16,6 +16,7 @@ import { Object as CmisDocument } from "./generated/CreateDocumentApi";
 import { Object as CmisGetAclProperty } from "./generated/GetAclPropertyApi";
 import { Object as CmisGetChildren } from "./generated/GetChildrenApi";
 import { ApiResponse as CmisGetDeletedChildren } from "./generated/GetDeletedChildrenApi";
+import { Object as CmisGetDescendants } from "./generated/GetDescendantsApi";
 
 import { BaseOptions, WriteOptions, AddAclProperty, CreateType } from "./types";
 import { CreateSecondaryType as CreateSecondaryTypeConstants } from "./util/Constants";
@@ -957,6 +958,67 @@ export class CmisClient {
       .getBrowserRootByRepositoryId(
         this.defaultRepository.repositoryId,
         requestBody
+      )
+      .execute(this.destination);
+  }
+
+  /**
+   * Retrieves the descendants of a specified object in the CMIS repository,
+   * including children of its child-folders.
+   *
+   * @param objectId - Identifier of the object whose descendants should be fetched.
+   * @param options - Configuration options for fetching descendants.
+   * @property {string} [options.filter] - List of property query names to return, e.g., 'cmis:name,description'.
+   *                                      For secondary type properties, use: <secondaryTypeQueryName>.<propertyQueryName>.
+   * @property {number} [options.maxItems] - Maximum number of descendants to return.
+   * @property {number} [options.skipCount] - Number of initial results to skip.
+   * @property {string} [options.orderBy] - Comma-separated list of query names with optional "ASC" or "DESC" modiﬁer.
+   *                                        Defaults to "ASC" if not stated.
+   * @property {boolean} [options.includeAllowableActions] - If true, includes allowable actions for each descendant.
+   * @property {boolean} [options.includePathSegment] - If true, includes the path segment for each descendant.
+   * @property {"none" | "source" | "target" | "both"} [options.includeRelationships] - Specifies the scope of relationships to include.
+   * @property {string} [options.renditionFilter] - Renditions to include in the response, e.g.,
+   *                                               '*' for all, 'cmis:thumbnail' for thumbnails.
+   *
+   * @returns A promise that resolves to an object containing the descendants of the specified object.
+   */
+  async getDescendants(
+    objectId: string,
+    options: {
+      filter?: string;
+      maxItems?: number;
+      skipCount?: number;
+      orderBy?: string;
+      includeAllowableActions?: boolean;
+      includePathSegment?: boolean;
+      includeRelationships?: "none" | "source" | "target" | "both";
+      renditionFilter?: string;
+    } & BaseOptions = {
+      filter: "*",
+      includeAllowableActions: false,
+      includePathSegment: false,
+      includeRelationships: "none",
+    }
+  ): Promise<CmisGetDescendants> {
+    const api = CmisGeneratedApi.GetDescendantsApi.GetDescendantsApi;
+
+    const requestBody = {
+      objectId,
+      cmisselector: "descendants",
+      ...this.globalParameters,
+      ...options,
+    };
+
+    return api
+      .getBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        /**
+         * The `any` type assertion is used here to bypass the "orderBy" property type restriction.
+         * For some reason, it was defined that the possible values are 'none', 'common', or 'custom'.
+         * However, these are the possible values for the repository's capabilityOrderBy.
+         * In this context, "orderBy" should accept a string.
+         */
+        requestBody as any
       )
       .execute(this.destination);
   }
