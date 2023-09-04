@@ -1,14 +1,11 @@
-import {
-  getDestinationFromDestinationService,
-  Destination,
-} from "@sap-cloud-sdk/connectivity";
+import { getDestinationFromDestinationService } from "@sap-cloud-sdk/connectivity";
 import { expect } from "chai";
 import { CmisClient } from "../src/CmisClient";
 import { loadEnv } from "@sap/xsenv";
 import fs from "fs";
 import path from "path";
 
-import { Object as CmisDocument } from "../src/generated/CreateDocumentApi";
+import { CreateDocumentResponse, CreateFolderResponse } from "../src/generated";
 
 describe("CmisClient integration with BTP - DMS Service", function () {
   this.timeout(10000);
@@ -26,13 +23,13 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     cmisClient = new CmisClient({ destinationName: "sdm-i550329" });
   });
 
-  it.only("should load repositories from DMS", async () => {
-    const result = await cmisClient.getRepositories();
+  it("should load repositories from DMS", async () => {
+    const result = await cmisClient.fetchRepository();
     const repository = Object.values(result)[0];
     expect(repository).to.have.property("repositoryId");
   });
 
-  let document: CmisDocument;
+  let document: CreateDocumentResponse;
   it("should create a document in root", async () => {
     const result = await cmisClient.createDocument(
       `File-${Date.now().toString()}.txt`,
@@ -132,21 +129,16 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     );
   });
 
-  /**
-   * Skipped due to unexpected HTTP 500 error from the service.
-   * Error Details:
-   *   - exception: "runtime"
-   *   - message: "Method 'getLogonName' is not supported for grant type 'client_credentials'client_credentials"
-   * TODO: Revisit and check once the service issue is resolved.
-   */
+  // NOTE: the repository MUST be set as 'Favorites' in order for this test to succeed.
+  // This feature is only avaliable for 'Application Option'
   it.skip("should set an object as favorite", async () => {
     await cmisClient.createFavorite(
       document.succinctProperties["cmis:objectId"]
     );
   });
 
-  let folder;
-  it.only("should create a folder in root", async () => {
+  let folder: CreateFolderResponse;
+  it("should create a folder in root", async () => {
     const result = await cmisClient.createFolder(`folder-${Date.now()}`);
     folder = result;
     expect(result).to.have.property("succinctProperties");
@@ -194,18 +186,16 @@ describe("CmisClient integration with BTP - DMS Service", function () {
         cmisProperties: {
           "cmis:name": newName,
         },
+        succinct: true,
       }
     );
+
     expect(result.succinctProperties).to.have.property("cmis:name").eq(newName);
   });
 
-  /**
-   * Skipped due to unexpected HTTP 400 error from the service.
-   * Error Details:
-   *   - Unauthorized
-   * TODO: Revisit and check once the service issue is resolved.
-   */
-  it.skip("should create a share object", async () => {
+  // NOTE: the repository MUST be set as 'Collaboration' in order for this test to succeed.
+  // This feature is only avaliable for 'Application Option'
+  it.skip("should create a share folder", async () => {
     await cmisClient.createShare("my share");
   });
 
@@ -245,9 +235,9 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     const content = fs.createReadStream(filePath);
     const fileName = `chico-${Date.now()}.jpg`;
 
-    const createdDocument = await cmisClient.createDocument(fileName, content);
+    document = await cmisClient.createDocument(fileName, content);
     await cmisClient.generateThumbnail(
-      createdDocument.succinctProperties["cmis:objectId"]
+      document.succinctProperties["cmis:objectId"]
     );
   });
 
@@ -264,7 +254,14 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     );
   });
 
+  let subFolder: CreateFolderResponse;
   it("should get children", async () => {
+    // Create some folder and subfolder
+    folder = await cmisClient.createFolder(`folder-${Date.now()}`);
+    subFolder = await cmisClient.createFolder(`subFolder1-${Date.now()}`, {
+      folderPath: folder.succinctProperties["cmis:name"],
+    });
+
     const result = await cmisClient.getChildren(
       folder.succinctProperties["cmis:objectId"]
     );
@@ -275,19 +272,27 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     await cmisClient.getDeletedChildren();
   });
 
-  it.only("should create subfolder", async () => {
-    await cmisClient.createFolder(`subFolder1-${Date.now()}`, {
-      folderPath: folder.succinctProperties["cmis:name"],
-    });
-  });
-
   it("should get descendants", async () => {
     await cmisClient.getDescendants(folder.succinctProperties["cmis:objectId"]);
   });
 
-  it.only("should get object", async () => {
+  it("should get folder tree", async () => {
+    await cmisClient.getFolderTree(folder.succinctProperties["cmis:objectId"]);
+  });
+
+  it("should get object", async () => {
     await cmisClient.getObject(folder.succinctProperties["cmis:objectId"], {
       includeAllowableActions: true,
     });
+  });
+
+  it("should get parent", async () => {
+    await cmisClient.getParent(subFolder.succinctProperties["cmis:objectId"]);
+  });
+
+  it("should get properties of the given object", async () => {
+    await cmisClient.getProperties(
+      document.succinctProperties["cmis:objectId"]
+    );
   });
 });

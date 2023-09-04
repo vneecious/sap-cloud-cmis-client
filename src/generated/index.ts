@@ -1,26 +1,137 @@
-export * as AddAclPropertyApi from "./AddAclPropertyApi";
-export * as AppendContentStreamApi from "./AppendContentStreamApi";
-export * as CMISQuery from "./CMISQueryApi";
-export * as CancelCheckoutDocumentApi from "./CancelCheckOutDocumentApi";
-export * as CheckInDocumentApi from "./CheckInDocumentApi";
-export * as CheckOutDocumentApi from "./CheckOutDocumentApi";
-export * as CreateDocumentfromSourceApi from "./CreateDocumentFromSourceApi";
-// export * as CreateFavoriteApi from "./CreateFavoriteApi";
-export * as CreateFolderApi from "./CreateFolderApi";
-export * as CreateLinkApi from "./CreateLinkApi";
-export * as CreateSecondaryTypeApi from "./CreateSecondaryTypeApi";
-export * as CreateDocumentApi from "./CreateDocumentApi";
-export * as DeleteObjectApi from "./DeleteObjectApi";
-export * as DeletePermanentlyApi from "./DeletePermanentlyApi";
-export * as DeleteTreeApi from "./DeleteTreeApi";
-export * as DownloadAFileApi from "./DownloadFileApi";
-export * as GenerateThumbnailApi from "./GenerateThumbnailApi";
-export * as GetAclPropertyApi from "./GetAclPropertyApi";
-export * as GetAllowableActionsApi from "./GetAllowableActionsApi";
-export * as GetChildrenApi from "./GetChildrenApi";
-export * as GetDeletedChildrenApi from "./GetDeletedChildrenApi";
-export * as GetDescendantsApi from "./GetDescendantsApi";
-export * as GetFolderTreeApi from "./GetFolderTreeApi";
-export * as GetObjectApi from "./GetObjectApi";
-export * as ServiceApi from "./ServiceApi";
-export * as UpdatePropertiesApi from "./UpdatePropertiesApi";
+export {
+  AddAclPropertyApi as addAclPropertyApi,
+  Object as AddAclPropertyResponse,
+} from "./AddAclPropertyApi";
+export {
+  AppendContentStreamApi as appendContentStreamApi,
+  Object as AppendContentStreamResponse,
+} from "./AppendContentStreamApi";
+
+export {
+  CMISQueryApi as cmisQueryApi,
+  Object as CMISQueryResponse,
+} from "./CMISQueryApi";
+
+export { CancelCheckoutDocumentApi as cancelCheckoutDocumentApi } from "./CancelCheckOutDocumentApi";
+
+export {
+  CheckInDocumentApi as checkInDocumentApi,
+  Object as CheckInDocumentResponse,
+} from "./CheckInDocumentApi";
+
+export {
+  CheckOutDocumentApi as checkOutDocumentApi,
+  Object as CheckOutDocumentResponse,
+} from "./CheckOutDocumentApi";
+
+export {
+  CreateDocumentfromSourceApi as createDocumentfromSourceApi,
+  Copyobject as CreateDocumentfromSourceResponse,
+} from "./CreateDocumentFromSourceApi";
+
+export {
+  CreateFavoritesApi as createFavoritesApi,
+  Object as CreateFavoritesResponse,
+} from "./CreateFavoriteApi";
+
+export {
+  CreateFolderApi as createFolderApi,
+  Object as CreateFolderResponse,
+} from "./CreateFolderApi";
+
+export {
+  CreateLinkApi as createLinkApi,
+  LinkObject as CreateLinkResponse,
+} from "./CreateLinkApi";
+
+export { CreateTypeApi as createTypeApi } from "./CreateSecondaryTypeApi";
+
+export {
+  CreateDocumentApi as createDocumentApi,
+  Object as CreateDocumentResponse,
+} from "./CreateDocumentApi";
+
+export { DeleteObjectApi as deleteObjectApi } from "./DeleteObjectApi";
+
+export {
+  DeletePermanentlyApi as deletePermanentlyApi,
+  ApiResponse as DeletePermanentlyResponse,
+} from "./DeletePermanentlyApi";
+
+export { DeleteTreeApi as deleteTreeApi } from "./DeleteTreeApi";
+
+export { DownloadAFileApi as downloadAFileApi } from "./DownloadFileApi";
+
+export { GenerateThumbnailApi as generateThumbnailApi } from "./GenerateThumbnailApi";
+
+export {
+  GetAclPropertyApi as getAclPropertyApi,
+  Object as GetAclPropertyResponse,
+} from "./GetAclPropertyApi";
+
+export {
+  GetAllowableActionsApi as getAllowableActionsApi,
+  Object as GetAllowableActionsResponse,
+} from "./GetAllowableActionsApi";
+
+export {
+  GetChildrenApi as getChildrenApi,
+  Object as GetChildrenResponse,
+} from "./GetChildrenApi";
+
+export {
+  GetDeletedChildrenApi as getDeletedChildrenApi,
+  ApiResponse as GetDeletedChildrenResponse,
+} from "./GetDeletedChildrenApi";
+
+export {
+  GetDescendantsApi as getDescendantsApi,
+  Object as GetDescendantsResponse,
+} from "./GetDescendantsApi";
+
+export {
+  GetFolderTreeApi as getFolderTreeApi,
+  Object as GetFolderTreeResponse,
+} from "./GetFolderTreeApi";
+
+export {
+  GetObjectApi as getObjectApi,
+  Object as GetObjectResponse,
+} from "./GetObjectApi";
+
+export {
+  GetParentApi as getParentApi,
+  Object as GetParentResponse,
+} from "./GetParentApi";
+
+export {
+  FetchRepositoryApi as fetchRepositoryApi,
+  RepoObject as FetchRepositoryResponse,
+  Object as Repository,
+} from "./ServiceApi";
+
+export {
+  GetPropertiesApi as getPropertiesApi,
+  Object as GetPropertiesApiResponse,
+} from "./GetPropertiesApi";
+
+import { Object as InternalUpdatePropertiesResponse } from "./UpdatePropertiesApi";
+import { Object as InternalCreateDocumentResponse } from "./CreateDocumentApi";
+import { XOR } from "src/types";
+
+/**
+ * The `UpdatePropertiesResponse` type is designed to handle two possible shapes of response objects.
+ * The two possible response objects originate from two different internal APIs: `UpdatePropertiesApi`
+ * and `CreateDocumentApi`.
+ *
+ * The exclusive type (`XOR`) ensures that `UpdatePropertiesResponse` can only have the shape of one of
+ * these two response objects, but not both simultaneously. This exclusive typing is particularly useful
+ * when the user updates properties with `succinctProperties` set to `true`, which triggers a response
+ * similar to `CreateDocumentApi`.
+ */
+export type UpdatePropertiesResponse = XOR<
+  InternalUpdatePropertiesResponse,
+  InternalCreateDocumentResponse
+>;
+
+export { UpdatePropertiesApi as updatePropertiesApi } from "./UpdatePropertiesApi";
