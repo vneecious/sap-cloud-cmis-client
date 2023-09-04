@@ -33,7 +33,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   });
 
   let document: CmisDocument;
-  it.only("should create a document in root", async () => {
+  it("should create a document in root", async () => {
     const result = await cmisClient.createDocument(
       `File-${Date.now().toString()}.txt`,
       Buffer.from("Lorem ipsum dolor", "utf-8")
@@ -146,7 +146,7 @@ describe("CmisClient integration with BTP - DMS Service", function () {
   });
 
   let folder;
-  it("should create a folder in root", async () => {
+  it.only("should create a folder in root", async () => {
     const result = await cmisClient.createFolder(`folder-${Date.now()}`);
     folder = result;
     expect(result).to.have.property("succinctProperties");
@@ -262,10 +262,16 @@ describe("CmisClient integration with BTP - DMS Service", function () {
     expect(result).to.have.property("acl");
   });
 
-  it.only("should get allowable actions", async () => {
+  it("should get allowable actions", async () => {
     const result = await cmisClient.getAllowableActions(
       document.succinctProperties["cmis:objectId"]
     );
-    debugger;
+  });
+
+  it("should get children", async () => {
+    const result = await cmisClient.getChildren(
+      folder.succinctProperties["cmis:objectId"]
+    );
+    expect(result).to.have.property("objects");
   });
 });

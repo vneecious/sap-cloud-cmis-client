@@ -14,9 +14,11 @@ import { Object as CmisFolder } from "./generated/CreateFolderApi";
 import { Object as CmisQuery } from "./generated/CMISQueryApi";
 import { Object as CmisDocument } from "./generated/CreateDocumentApi";
 import { Object as CmisGetAclProperty } from "./generated/GetAclPropertyApi";
+import { Object as CmisGetChildren } from "./generated/GetChildrenApi";
 
 import { BaseOptions, WriteOptions, AddAclProperty, CreateType } from "./types";
 import { CreateSecondaryType as CreateSecondaryTypeConstants } from "./util/Constants";
+import { OpenApiRequestBuilder } from "@sap-cloud-sdk/openapi";
 
 export class CmisClient {
   private repositories: CmisRepository;
@@ -857,6 +859,74 @@ export class CmisClient {
       .getBrowserRootByRepositoryId(
         this.defaultRepository.repositoryId,
         requestBody
+      )
+      .execute(this.destination);
+  }
+
+  /**
+   * Retrieves the children of a specified object within the CMIS repository.
+   *
+   * This method is used to get the immediate descendants of a specified folder object. It's especially useful
+   * for navigation or hierarchical content structures.
+   *
+   * @param objectId - Identifier of the object for which children should be fetched.
+   * @param options - Configuration options for the request.
+   * @property {string} [options.filter] - List of property query names to return (e.g., 'cmis:name,description').
+   *                                       For secondary type properties, follow the format: <secondaryTypeQueryName>.<propertyQueryName>.
+   * @property {number} [options.maxItems] - Maximum number of children to return.
+   * @property {number} [options.skipCount] - Number of initial results to skip.
+   * @property {string} [options.orderBy] - A comma-separated list of query names and an optional ascending modiﬁer "ASC" or descending modiﬁer "DESC" for each query name.
+   *                                        If the modiﬁer is not stated, "ASC" is assumed
+   * @property {boolean} [options.includeAllowableActions] - Whether to include allowable actions for each child.
+   * @property {boolean} [options.includePathSegment] - Whether to include the path segment for each child.
+   * @property {"none" | "source" | "target" | "both"} [options.includeRelationships] - Scope of the relationships to include.
+   * @property {string} [options.renditionFilter] - Defines the renditions to be included in the response.
+   *                                               Examples for `renditionFilter`:
+   *                                               - `*`: Include all renditions.
+   *                                               - `cmis:thumbnail`: Include only thumbnails.
+   *                                               - `image/*`: Include all image renditions.
+   *                                               - `application/pdf,application/x-shockwave-flash`: Include web ready renditions.
+   *                                               - `cmis:none`: Exclude all renditions (Default).
+   *
+   * @returns A promise that resolves to the children of the specified object.
+   */
+  async getChildren(
+    objectId: string,
+    options: {
+      filter?: string;
+      maxItems?: number;
+      skipCount?: number;
+      orderBy?: string;
+      includeAllowableActions?: boolean;
+      includePathSegment?: boolean;
+      includeRelationships?: "none" | "source" | "target" | "both";
+      renditionFilter?: string;
+    } & BaseOptions = {
+      filter: "*",
+      includeAllowableActions: false,
+      includePathSegment: false,
+      includeRelationships: "none",
+    }
+  ): Promise<CmisGetChildren> {
+    const api = CmisGeneratedApi.GetChildrenApi.GetChildrenApi;
+
+    const requestBody = {
+      objectId,
+      cmisselector: "children",
+      ...this.globalParameters,
+      ...options,
+    };
+
+    return api
+      .getBrowserRootByRepositoryId(
+        this.defaultRepository.repositoryId,
+        /**
+         * The `any` type assertion is used here to bypass the "orderBy" property type restriction.
+         * For some reason, it was defined that the possible values are 'none', 'common', or 'custom'.
+         * However, these are the possible values for the repository's capabilityOrderBy.
+         * In this context, "orderBy" should accept a string.
+         */
+        requestBody as any
       )
       .execute(this.destination);
   }
