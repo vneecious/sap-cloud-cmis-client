@@ -33,10 +33,10 @@ CMIS Methods:
 - [x] GetTypeDefinition
 - [x] GetTypeDescendants
 - [x] GetZipContentStream
-- [ ] MassUpload
-- [ ] MoveObject
-- [ ] RemoveAclProperty
-- [ ] RestoreObject
+- [x] ZipExtractAndUploadApi
+- [x] MoveObject
+- [x] RemoveAclProperty
+- [x] RestoreObject
 - [x] Service
 - [x] UpdateFolder_Document_Link
 - [x] UpdateProperties

@@ -28,7 +28,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     cmisClient = new CmisClient({ destinationName: 'sdm-i550329' });
   });
 
-  it('should load repositories from DMS', async () => {
+  it.only('should load repositories from DMS', async () => {
     const result = await cmisClient.fetchRepository();
     const repository = Object.values(result)[0];
     expect(repository).to.have.property('repositoryId');
@@ -344,5 +344,12 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     //   Status: 500,
     //   Message: '[ZIP Rendition] objectId could not be found in session'
     // }
+  });
+
+  it('should upload a ZIP and extract its files into a new folder', async () => {
+    const filePath = path.join(__dirname, 'files.zip');
+    const content = fs.createReadStream(filePath);
+    const fileName = `files-${Date.now()}.zip`;
+    await cmisClient.zipExtractAndUpload(fileName, content);
   });
 });

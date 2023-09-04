@@ -15,6 +15,7 @@ import {
   AddAclProperty,
   CreateType,
   BaseOptions,
+  RemoveAclProperty,
 } from './types';
 import { CreateSecondaryType as CreateSecondaryTypeConstants } from './util/Constants';
 import { OpenApiRequestBuilder } from '@sap-cloud-sdk/openapi';
@@ -1572,7 +1573,156 @@ export class CmisClient {
       : request.execute(this.destination);
   }
 
-  // aqui
+  /**
+   * Moves an object (e.g., folder, link, share, document) from a source folder to a target folder.
+   * If the object is a folder, all its children are moved recursively.
+   *
+   * @param objectId - Identifier of the object to be moved.
+   * @param sourceFolderId - Identifier of the source folder.
+   * @param targetFolderId - Identifier of the destination folder.
+   * @param options - Additional configuration options.
+   * @returns A promise resolving to the result of the move operation or the full HTTP response if the `raw` option is set.
+   */
+  async moveObject(
+    objectId: string,
+    sourceFolderId: string,
+    targetFolderId: string,
+    options: BaseOptions = {}
+  ): Promise<CmisGeneratedApi.MoveObjectResponse | HttpResponse> {
+    const { config, ...optionalParameters } = options;
+
+    const requestBody = {
+      cmisaction: 'move',
+      objectId,
+      sourceFolderId,
+      targetFolderId,
+      ...optionalParameters,
+    };
+
+    const api = CmisGeneratedApi.moveObjectApi;
+    let request = api.createBrowserRootByRepositoryId(
+      this.defaultRepository.repositoryId,
+      requestBody
+    );
+
+    if (config?.customHeaders) {
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    request = request.middleware(middlewares.jsonToFormData);
+
+    return config?.raw
+      ? request.executeRaw(this.destination)
+      : request.execute(this.destination);
+  }
+
+  /**
+   * It creates a folder with the zip name and all the contents inside the zip, folder or document are created inside it.
+   * The maximum size that can be uploaded is 4GB and the maximum entries in zip can be 10000.
+   * @param filename - The name of the file (e.g., filename.zip).
+   * @param content - The content
+   * @param options - Optional parameters to modify the append behavior.
+   *
+   * @returns
+   */
+  async zipExtractAndUpload(
+    filename: string,
+    content: any,
+    options: BaseOptions = {}
+  ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
+    const { config, ...optionalParameters } = options;
+
+    return this.createDocument(filename, content, {
+      ...options,
+      config: {
+        customHeaders: {
+          zipExtraction: 'true',
+        },
+      },
+    });
+  }
+
+  /**
+   * Removes a list of Access Control Entries (ACE) from the Access Control List (ACL) of an object.
+   * The permissions can include values such as cmis:read, cmis:write, and all.
+   *
+   * @param objectId - The ID of the object from which the ACEs should be removed.
+   * @param removeACEs - The list of ACEs to be removed.
+   * @param options - Optional parameters to modify the ACL behavior.
+   * @property options.ACLPropagation - Specifies how ACEs should be applied.
+   * - "objectonly": Apply ACEs only to the object without changing the ACLs of other objects.
+   * - "propagate": Apply ACEs by propagating the changes to all inheriting objects.
+   * - "repositorydetermined": (default) Let the repository determine the behavior.
+   *
+   * @returns The response data from the removing operation.
+   */
+  async removeAclProperty(
+    objectId: string,
+    removeACEs: Array<RemoveAclProperty.InputAcl>,
+    options: BaseCmisOptions & {
+      ACLPropagation?: 'objectonly' | 'propagate' | 'repositorydetermined';
+    } = { ACLPropagation: 'repositorydetermined' }
+  ): Promise<CmisGeneratedApi.RemoveAclPropertyResponse | HttpResponse> {
+    const formattedRemoveACEs = transformToQueryArrayFormat(removeACEs);
+    const { config, ...optionalParams } = options;
+
+    const requestBody = {
+      cmisaction: 'applyAcl',
+      ...formattedRemoveACEs,
+      ...this.globalParameters,
+      ...optionalParams,
+    };
+
+    const api = CmisGeneratedApi.removeAlcPropertyApi;
+    let request = api.createBrowserRootByRepositoryId(
+      this.defaultRepository.repositoryId,
+      requestBody
+    );
+
+    if (config?.customHeaders)
+      request = request.addCustomHeaders(options?.config?.customHeaders);
+
+    request = request.middleware(middlewares.jsonToFormData);
+    return config?.raw
+      ? request.executeRaw(this.destination)
+      : request.execute(this.destination);
+  }
+
+  /**
+   * Restores a deleted object, either a document or a folder, from the recycle bin.
+   *
+   * @param objectId - Identifier of the deleted object to be restored.
+   * @param options - Additional configuration options.
+   * @returns A promise resolving to the result of the restore operation or the full HTTP response if the `raw` option is set.
+   */
+  async restoreObject(
+    objectId: string,
+    options: BaseOptions = {}
+  ): Promise<CmisGeneratedApi.RestoreObjectResponse | HttpResponse> {
+    const { config, ...optionalParameters } = options;
+
+    const requestBody = {
+      cmisaction: 'restoreObject',
+      objectId,
+      ...optionalParameters,
+    };
+
+    const api = CmisGeneratedApi.restoreObjectApi;
+    let request = api.updateBrowserRootByRepositoryId(
+      this.defaultRepository.repositoryId,
+      requestBody
+    );
+
+    if (config?.customHeaders) {
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    request = request.middleware(middlewares.jsonToFormData);
+
+    return config?.raw
+      ? request.executeRaw(this.destination)
+      : request.execute(this.destination);
+  }
 
   /**
    * Updates properties and secondary types of the specified object.

@@ -133,6 +133,21 @@ export {
   Object as GetTypeDescendantsResponse,
 } from './GetTypeDescendantsApi';
 
+export {
+  MoveObjectApi as moveObjectApi,
+  Moveobject as MoveObjectResponse,
+} from './MoveObjectApi';
+
+export {
+  RemoveAclPropertyApi as removeAlcPropertyApi,
+  Object as RemoveAclPropertyResponse,
+} from './RemoveAclPropertyApi';
+
+export {
+  ApiResponse as RestoreObjectResponse,
+  RestoreObjectApi as restoreObjectApi,
+} from './RestoreObjectApi';
+
 export { ZipDownloadApi as zipDownloadApi } from './GetZipContentStream';
 
 import { XOR } from 'src/types';

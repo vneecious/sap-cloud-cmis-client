@@ -53,6 +53,13 @@ export namespace AddAclProperty {
   };
 }
 
+export namespace RemoveAclProperty {
+  export type InputAcl = {
+    removeACEPrincipal: string;
+    removeACEPermission: Array<string>;
+  };
+}
+
 export namespace CreateType {
   /**
    * Represents the definition of a property in a CMIS type.
