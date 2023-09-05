@@ -12,7 +12,9 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "lint": "eslint ./src/ --fix",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "semantic-release": "semantic-release",
+    "test": "jest --coverage --config jest.config.js"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.4",
@@ -40,5 +42,8 @@
     "@sap-cloud-sdk/http-client": "^3.4.0",
     "@sap-cloud-sdk/openapi": "^3.4.0",
     "form-data": "^4.0.0"
+  },
+  "lint-staged": {
+    "*.ts": "eslint --cache --cache-location .eslintcache --fix"
   }
 }

@@ -49,7 +49,7 @@ describe('Transform Utility', () => {
     };
 
     const result = transformObjectToCmisProperties(input);
-    expect(result).toBe(expectedOutput);
+    expect(JSON.stringify(result)).toBe(JSON.stringify(expectedOutput));
   });
 
   it('transformInputToPropetyBody: should transform input with array value to expected output', () => {
@@ -67,7 +67,7 @@ describe('Transform Utility', () => {
     };
 
     const result = transformObjectToCmisProperties(input);
-    expect(result).toBe(expectedOutput);
+    expect(JSON.stringify(result)).toBe(JSON.stringify(expectedOutput));
   });
 });
 
