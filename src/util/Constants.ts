@@ -1,7 +1,9 @@
-export namespace CreateSecondaryType {
-  export const DEFAULT_SECONDARY_TYPE = Object.freeze({
-    baseId: "cmis:secondary",
-    parentId: "cmis:secondary",
+import { CMISType, CMISTypePropertyDefinition } from 'src/types';
+
+export const DEFAULT_SECONDARY_TYPE: Readonly<Partial<CMISType>> =
+  Object.freeze({
+    baseId: 'cmis:secondary',
+    parentId: 'cmis:secondary',
     creatable: false,
     fileable: false,
     queryable: true,
@@ -16,11 +18,12 @@ export namespace CreateSecondaryType {
     }),
   });
 
-  export const DEFAULT_PROPERTY_DEFINITION = Object.freeze({
-    inherited: false,
-    openChoice: true,
-    required: false,
-    queryable: true,
-    orderable: false,
-  });
-}
+export const DEFAULT_CMIS_PROPERTY_DEFINITION: Readonly<
+  Partial<CMISTypePropertyDefinition>
+> = Object.freeze({
+  inherited: false,
+  openChoice: true,
+  required: false,
+  queryable: true,
+  orderable: false,
+});

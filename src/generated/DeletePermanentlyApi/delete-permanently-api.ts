@@ -25,7 +25,7 @@ export const DeletePermanentlyApi = {
       '/browser/{repositoryId}/root',
       {
         pathParameters: { repositoryId },
-        queryParameters
+        queryParameters,
       }
-    )
+    ),
 };

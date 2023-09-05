@@ -27,6 +27,6 @@ export const GetTypeDefinitionApi = {
   ) =>
     new OpenApiRequestBuilder<Object>('get', '/browser/{repositoryId}', {
       pathParameters: { repositoryId },
-      queryParameters
-    })
+      queryParameters,
+    }),
 };

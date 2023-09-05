@@ -22,7 +22,7 @@ export const MoveObjectApi = {
       '/browser/{repositoryId}/root',
       {
         pathParameters: { repositoryId },
-        body
+        body,
       }
-    )
+    ),
 };

@@ -1,7 +1,7 @@
-import FormData from "form-data";
+import FormData from 'form-data';
 
 export type CmisProperty = Record<string, string>;
-export type InputObject = Record<any, any | any[]>;
+export type InputObject = Record<any, any>;
 
 /**
  * Transforms an array of input objects into a query array format.
@@ -31,7 +31,7 @@ export function transformToQueryArrayFormat(
   const result: CmisProperty = {};
 
   input.forEach((item, index) => {
-    Object.keys(item).forEach((key) => {
+    Object.keys(item).forEach(key => {
       const value = item[key];
 
       if (Array.isArray(value)) {
@@ -117,10 +117,12 @@ export function transformObjectToCmisProperties(
  * @param data - The JSON object to be transformed into FormData.
  * @returns A new FormData object containing the data from the input object.
  */
-export function transformJsonToFormData(data: Object): FormData {
+export function transformJsonToFormData(data: any): FormData {
   const formData = new FormData();
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   Object.entries(data).forEach(([key, value]) => {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     formData.append(key, value.toString());
   });
 

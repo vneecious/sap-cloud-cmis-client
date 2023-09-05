@@ -25,7 +25,7 @@ export const RestoreObjectApi = {
       '/browser/{repositoryId}/root',
       {
         pathParameters: { repositoryId },
-        queryParameters
+        queryParameters,
       }
-    )
+    ),
 };

@@ -1,6 +1,6 @@
-import { HttpResponse } from '@sap-cloud-sdk/http-client';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { getDestinationFromDestinationService } from '@sap-cloud-sdk/connectivity';
-import { expect } from 'chai';
 import { CmisClient } from '../src/CmisClient';
 import { loadEnv } from '@sap/xsenv';
 import fs from 'fs';
@@ -9,14 +9,13 @@ import path from 'path';
 import {
   CreateDocumentResponse,
   CreateFolderResponse,
-  ZipCreationForDownloadResponse,
+  FetchRepositoryResponse,
 } from '../src/generated';
+import { CMISTypeInput } from 'src/types';
 
 describe('CmisClient integration with BTP - DMS Service', function () {
-  this.timeout(100000);
-
   let cmisClient: CmisClient;
-  before(async () => {
+  beforeAll(async () => {
     // !Before running the tests, ensure the project has bindings with both a UAA Service and a Destination Service.
     loadEnv('test-env.json');
     const destination = await getDestinationFromDestinationService({
@@ -28,10 +27,11 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     cmisClient = new CmisClient({ destinationName: 'sdm-i550329' });
   });
 
-  it.only('should load repositories from DMS', async () => {
-    const result = await cmisClient.fetchRepository();
+  it('should load repositories from DMS', async () => {
+    const result =
+      (await cmisClient.getRepositories()) as FetchRepositoryResponse;
     const repository = Object.values(result)[0];
-    expect(repository).to.have.property('repositoryId');
+    expect(repository).toHaveProperty('repositoryId');
   });
 
   let document: CreateDocumentResponse;
@@ -42,7 +42,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     );
 
     document = result;
-    expect(result.succinctProperties).to.have.property(
+    expect(result.succinctProperties).toHaveProperty(
       'cmis:contentStreamLength'
     );
   });
@@ -54,27 +54,25 @@ describe('CmisClient integration with BTP - DMS Service', function () {
 
     document = result;
 
-    expect(result).to.have.property('succinctProperties');
+    expect(result).toHaveProperty('succinctProperties');
   });
 
-  let documentCheckOut;
+  let documentCheckOut: CreateDocumentResponse;
   it('should checkout the created document', async () => {
-    const result = await cmisClient.checkOut(
+    documentCheckOut = await cmisClient.checkOut(
       document.succinctProperties['cmis:objectId']
     );
 
-    documentCheckOut = result;
-
-    expect(result.succinctProperties)
-      .to.have.property('cmis:isPrivateWorkingCopy')
-      .eq(true);
+    expect(
+      documentCheckOut.succinctProperties['cmis:isPrivateWorkingCopy']
+    ).toBe(true);
   });
 
   it('should cancel checkout', async () => {
-    const result = await cmisClient.cancelCheckOutDocument(
+    const result = await cmisClient.cancelCheckOut(
       documentCheckOut.succinctProperties['cmis:objectId']
     );
-    expect(result).to.be.eq('');
+    expect(result).toBe('');
   });
 
   it('should checkout the again', async () => {
@@ -84,9 +82,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
 
     document = result;
 
-    expect(result.succinctProperties)
-      .to.have.property('cmis:isPrivateWorkingCopy')
-      .eq(true);
+    expect(result.succinctProperties['cmis:isPrivateWorkingCopy']).toBe(true);
   });
 
   it('should append content stream the document', async () => {
@@ -102,7 +98,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
 
       document = result;
 
-      expect(result.succinctProperties).to.have.property(
+      expect(result.succinctProperties).toHaveProperty(
         'cmis:contentStreamLength'
       );
     } catch (error) {
@@ -117,9 +113,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
 
     document = result;
 
-    expect(result.succinctProperties)
-      .to.have.property('cmis:versionLabel')
-      .eq('2.0');
+    expect(result.succinctProperties['cmis:versionLabel']).toBe('2.0');
   });
 
   it('should create a document from a source', async () => {
@@ -137,6 +131,11 @@ describe('CmisClient integration with BTP - DMS Service', function () {
   // NOTE: the repository MUST be set as 'Favorites' in order for this test to succeed.
   // This feature is only avaliable for 'Application Option'
   it.skip('should set an object as favorite', async () => {
+    // cmisClient.setDefaultRepository('ee2f17a2-6218-4056-93e0-f8a9b343fcc6'); // set share repository as default
+    const document = await cmisClient.createDocument(
+      `File-${Date.now().toString()}.txt`,
+      Buffer.from('Lorem ipsum dolor', 'utf-8')
+    );
     await cmisClient.createFavorite(
       document.succinctProperties['cmis:objectId']
     );
@@ -146,7 +145,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
   it('should create a folder in root', async () => {
     const result = await cmisClient.createFolder(`folder-${Date.now()}`);
     folder = result;
-    expect(result).to.have.property('succinctProperties');
+    expect(result).toHaveProperty('succinctProperties');
   });
 
   it('should create link', async () => {
@@ -154,16 +153,14 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       'http://sap.com',
       `SAP-${Date.now()}`
     );
-    expect(result.succinctProperties)
-      .to.have.property('cmis:objectTypeId')
-      .eq('sap:link');
+    expect(result.succinctProperties['cmis:objectTypeId']).toBe('sap:link');
   });
 
   it('should run queries', async () => {
     const result = await cmisClient.cmisQuery('select * from cmis:document', {
       maxItems: 10,
     });
-    expect(result).to.have.property('results');
+    expect(result).toHaveProperty('results');
   });
 
   it('should create a secondary type', async () => {
@@ -176,7 +173,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
         localName: typeName,
         localNamespace: 'my.org',
         queryName: typeName,
-      });
+      } as CMISTypeInput);
     } catch (erro) {
       console.warn(erro.response.data);
     }
@@ -195,12 +192,13 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       }
     );
 
-    expect(result.succinctProperties).to.have.property('cmis:name').eq(newName);
+    expect(result.succinctProperties['cmis:name']).toBe(newName);
   });
 
   // NOTE: the repository MUST be set as 'Collaboration' in order for this test to succeed.
   // This feature is only avaliable for 'Application Option'
   it.skip('should create a share folder', async () => {
+    // cmisClient.setDefaultRepository('2dfc4fd5-e8dc-4dee-b6fc-3160268303cf'); // set share repository as default
     await cmisClient.createShare('my share');
   });
 
@@ -230,7 +228,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       createdDocument.succinctProperties['cmis:objectId']
     );
 
-    expect(result).be.eq(fileContent);
+    expect(result).toBe(fileContent);
   });
 
   // NOTE: The repository MUST be onboarded with the property `isThumbnailEnabled` set to `true`
@@ -250,7 +248,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     const result = await cmisClient.getACLProperty(
       document.succinctProperties['cmis:objectId']
     );
-    expect(result).to.have.property('acl');
+    expect(result).toHaveProperty('acl');
   });
 
   it('should get allowable actions', async () => {
@@ -270,7 +268,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     const result = await cmisClient.getChildren(
       folder.succinctProperties['cmis:objectId']
     );
-    expect(result).to.have.property('objects');
+    expect(result).toHaveProperty('objects');
   });
 
   it('should get deleted children', async () => {
@@ -310,10 +308,9 @@ describe('CmisClient integration with BTP - DMS Service', function () {
   });
 
   it('should get the descendants of a type', async () => {
-    const result = await cmisClient.getTypeDescendants('cmis:document');
+    await cmisClient.getTypeDescendants('cmis:document');
   });
 
-  let response: HttpResponse;
   it.skip('should create a zip content', async () => {
     const objectIds: string[] = [];
 
@@ -330,7 +327,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     const secondDocument = await cmisClient.createDocument(fileName, content);
     objectIds.push(secondDocument.succinctProperties['cmis:objectId']);
 
-    response = await cmisClient.zipCreationForDownload(objectIds, {
+    await cmisClient.zipCreationForDownload(objectIds, {
       config: {
         raw: true,
       },

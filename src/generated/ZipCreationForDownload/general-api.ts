@@ -22,6 +22,6 @@ export const GeneralApi = {
   ) =>
     new OpenApiRequestBuilder<Object>('post', '/browser/{repositoryId}/root', {
       pathParameters: { repositoryId },
-      body
-    })
+      body,
+    }),
 };

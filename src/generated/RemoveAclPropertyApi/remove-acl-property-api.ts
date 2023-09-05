@@ -19,6 +19,6 @@ export const RemoveAclPropertyApi = {
   createBrowserRootByRepositoryId: (repositoryId: string, body: any) =>
     new OpenApiRequestBuilder<Object>('post', '/browser/{repositoryId}/root', {
       pathParameters: { repositoryId },
-      body
-    })
+      body,
+    }),
 };

@@ -26,6 +26,6 @@ export const GetParentApi = {
   ) =>
     new OpenApiRequestBuilder<Object>('get', '/browser/{repositoryId}/root', {
       pathParameters: { repositoryId },
-      queryParameters
-    })
+      queryParameters,
+    }),
 };

@@ -22,7 +22,7 @@ export const CreateDocumentfromSourceApi = {
       '/browser/{repositoryId}/root',
       {
         pathParameters: { repositoryId },
-        body
+        body,
       }
-    )
+    ),
 };

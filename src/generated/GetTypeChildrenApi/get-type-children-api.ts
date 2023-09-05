@@ -29,6 +29,6 @@ export const GetTypeChildrenApi = {
   ) =>
     new OpenApiRequestBuilder<Object>('get', '/browser/{repositoryId}', {
       pathParameters: { repositoryId },
-      queryParameters
-    })
+      queryParameters,
+    }),
 };

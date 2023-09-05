@@ -34,7 +34,7 @@ export const GetObjectApi = {
   ) =>
     new OpenApiRequestBuilder<Object>('get', '/browser/{repositoryId}/root', {
       pathParameters: { repositoryId },
-      queryParameters
+      queryParameters,
     }),
   /**
    * It provides the information for the specified object where the object can be of folder, link, document type.
@@ -65,7 +65,7 @@ export const GetObjectApi = {
       '/browser/{repositoryId}/root/{directoryPath}',
       {
         pathParameters: { repositoryId, directoryPath },
-        queryParameters
+        queryParameters,
       }
-    )
+    ),
 };

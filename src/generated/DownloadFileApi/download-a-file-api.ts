@@ -26,6 +26,6 @@ export const DownloadAFileApi = {
   ) =>
     new OpenApiRequestBuilder<any>('get', '/browser/{repositoryId}/root', {
       pathParameters: { repositoryId },
-      queryParameters
-    })
+      queryParameters,
+    }),
 };

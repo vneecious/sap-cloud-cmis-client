@@ -28,6 +28,6 @@ export const GetTypeDescendantsApi = {
   ) =>
     new OpenApiRequestBuilder<Object>('get', '/browser/{repositoryId}', {
       pathParameters: { repositoryId },
-      queryParameters
-    })
+      queryParameters,
+    }),
 };

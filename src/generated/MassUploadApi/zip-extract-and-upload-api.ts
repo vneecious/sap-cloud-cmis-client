@@ -22,7 +22,7 @@ export const ZipExtractAndUploadApi = {
       '/browser/{repositoryId}/root',
       {
         pathParameters: { repositoryId },
-        body
+        body,
       }
-    )
+    ),
 };

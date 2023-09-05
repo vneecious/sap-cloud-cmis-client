@@ -21,7 +21,7 @@ export const CreateTypeApi = {
       '/browser/{repositoryId}',
       {
         pathParameters: { repositoryId },
-        body
+        body,
       }
-    )
+    ),
 };

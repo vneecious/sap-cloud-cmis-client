@@ -18,6 +18,6 @@ export const CancelCheckoutDocumentApi = {
   createBrowserRootByRepositoryId: (repositoryId: string, body: any) =>
     new OpenApiRequestBuilder<any>('post', '/browser/{repositoryId}/root', {
       pathParameters: { repositoryId },
-      body
-    })
+      body,
+    }),
 };

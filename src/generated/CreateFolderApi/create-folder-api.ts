@@ -19,7 +19,7 @@ export const CreateFolderApi = {
   createBrowserRootByRepositoryId: (repositoryId: string, body: any) =>
     new OpenApiRequestBuilder<Object>('post', '/browser/{repositoryId}/root', {
       pathParameters: { repositoryId },
-      body
+      body,
     }),
   /**
    * It creates a folder object of the speciﬁed type in the speciﬁed location. It should not have repetitive folder names and properties that must be applied to the newly created folder should be present
@@ -38,7 +38,7 @@ export const CreateFolderApi = {
       '/browser/{repositoryId}/root/{directoryPath}',
       {
         pathParameters: { repositoryId, directoryPath },
-        body
+        body,
       }
-    )
+    ),
 };

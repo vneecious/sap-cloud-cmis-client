@@ -19,7 +19,7 @@ export const CreateDocumentApi = {
   createBrowserRootByRepositoryId: (repositoryId: string, body: any) =>
     new OpenApiRequestBuilder<Object>('post', '/browser/{repositoryId}/root', {
       pathParameters: { repositoryId },
-      body
+      body,
     }),
   /**
    * It creates a document object of the speciﬁed type (given by the cmis:objectTypeId property) in the speciﬁed location.
@@ -38,7 +38,7 @@ export const CreateDocumentApi = {
       '/browser/{repositoryId}/root/{directoryPath}',
       {
         pathParameters: { repositoryId, directoryPath },
-        body
+        body,
       }
-    )
+    ),
 };

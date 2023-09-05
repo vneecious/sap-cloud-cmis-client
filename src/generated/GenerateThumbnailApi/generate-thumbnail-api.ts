@@ -21,6 +21,6 @@ export const GenerateThumbnailApi = {
   ) =>
     new OpenApiRequestBuilder<string>('post', '/browser/{repositoryId}/root', {
       pathParameters: { repositoryId },
-      queryParameters
-    })
+      queryParameters,
+    }),
 };

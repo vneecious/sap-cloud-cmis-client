@@ -25,7 +25,7 @@ export const GetDeletedChildrenApi = {
       '/browser/{repositoryId}/root',
       {
         pathParameters: { repositoryId },
-        queryParameters
+        queryParameters,
       }
-    )
+    ),
 };

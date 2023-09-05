@@ -1,4 +1,7 @@
-import { CreateSecondaryType as CreateSecondaryTypeConstants } from 'src/util/Constants';
+import {
+  DEFAULT_CMIS_PROPERTY_DEFINITION,
+  DEFAULT_SECONDARY_TYPE,
+} from 'src/util/Constants';
 
 export type BaseCmisOptions = {
   /**
@@ -46,168 +49,162 @@ export type WriteOptions = {
   cmisProperties?: Record<any, string | string[]>;
 } & BaseCmisOptions;
 
-export namespace AddAclProperty {
-  export type InputAcl = {
-    addACEPrincipal: string;
-    addACEPermission: Array<string>;
-  };
-}
+export type AddAcl = {
+  addACEPrincipal: string;
+  addACEPermission: Array<string>;
+};
 
-export namespace RemoveAclProperty {
-  export type InputAcl = {
-    removeACEPrincipal: string;
-    removeACEPermission: Array<string>;
-  };
-}
+export type RemoveAcl = {
+  removeACEPrincipal: string;
+  removeACEPermission: Array<string>;
+};
 
-export namespace CreateType {
-  /**
-   * Represents the definition of a property in a CMIS type.
-   * @see {@link https://docs.oasis-open.org/cmis/CMIS/v1.1/errata01/os/CMIS-v1.1-errata01-os-complete.html#x1-270003}
-   */
-  export type PropertyDefinition = {
-    /** Unique identifier for the property. */
-    id: string;
+/**
+ * Represents the definition of a property in a CMIS type.
+ * @see {@link https://docs.oasis-open.org/cmis/CMIS/v1.1/errata01/os/CMIS-v1.1-errata01-os-complete.html#x1-270003}
+ */
+export type CMISTypePropertyDefinition = {
+  /** Unique identifier for the property. */
+  id: string;
 
-    /** Namespace for the property, usually used for vendor extensions. */
-    localNamespace: string;
+  /** Namespace for the property, usually used for vendor extensions. */
+  localNamespace: string;
 
-    /** Name of the property used locally. */
-    localName: string;
+  /** Name of the property used locally. */
+  localName: string;
 
-    /** Name of the property used in queries. */
-    queryName: string;
+  /** Name of the property used in queries. */
+  queryName: string;
 
-    /** Display name for the property. */
-    displayName: string;
+  /** Display name for the property. */
+  displayName: string;
 
-    /** Description of the property. */
-    description: string;
+  /** Description of the property. */
+  description: string;
 
-    /** The data type of the property. */
-    propertyType:
-      | 'string'
-      | 'boolean'
-      | 'decimal'
-      | 'integer'
-      | 'datetime'
-      | 'uri';
+  /** The data type of the property. */
+  propertyType:
+    | 'string'
+    | 'boolean'
+    | 'decimal'
+    | 'integer'
+    | 'datetime'
+    | 'uri';
 
-    /** Indicates the updatability of the property. */
-    updatability: 'readwrite' | 'readonly' | 'whencheckedout' | 'oncreate';
+  /** Indicates the updatability of the property. */
+  updatability: 'readwrite' | 'readonly' | 'whencheckedout' | 'oncreate';
 
-    /** Indicates if the property is inherited from a parent type. */
-    inherited: false;
+  /** Indicates if the property is inherited from a parent type. */
+  inherited: false;
 
-    /** Indicates if the choices for this property can be extended. */
-    openChoice: true;
+  /** Indicates if the choices for this property can be extended. */
+  openChoice: true;
 
-    /** Indicates if the property is mandatory. */
-    required: false;
+  /** Indicates if the property is mandatory. */
+  required: false;
 
-    /** Indicates if the property can have multiple values. */
-    cardinality: 'single' | 'multi';
+  /** Indicates if the property can have multiple values. */
+  cardinality: 'single' | 'multi';
 
-    /** Indicates if the property can be used in WHERE clauses in a query. */
-    queryable: true;
+  /** Indicates if the property can be used in WHERE clauses in a query. */
+  queryable: true;
 
-    /** Indicates if the property can be used in an ORDER BY clause in a query. */
-    orderable: false;
-  };
+  /** Indicates if the property can be used in an ORDER BY clause in a query. */
+  orderable: false;
+};
 
-  /**
-   * Represents a collection of property definitions, indexed by their keys.
-   */
-  export type PropertyDefinitions = {
-    [key: string]: PropertyDefinition;
-  };
+/**
+ * Represents a collection of property definitions, indexed by their keys.
+ */
+export type CMISTypePropertyDefinitions = {
+  [key: string]: CMISTypePropertyDefinition;
+};
 
-  /**
-   * Represents the definition of a secondary type in CMIS.
-   * @see {@link https://docs.oasis-open.org/cmis/CMIS/v1.1/errata01/os/CMIS-v1.1-errata01-os-complete.html#x1-270003}
-   */
-  export type Type = {
-    /** Unique identifier for the type. */
-    id: string;
+/**
+ * Represents the definition of a secondary type in CMIS.
+ * @see {@link https://docs.oasis-open.org/cmis/CMIS/v1.1/errata01/os/CMIS-v1.1-errata01-os-complete.html#x1-270003}
+ */
+export type CMISType = {
+  /** Unique identifier for the type. */
+  id: string;
 
-    /** Namespace for the secondary type, usually used for vendor extensions. */
-    localNamespace: string;
+  /** Namespace for the secondary type, usually used for vendor extensions. */
+  localNamespace: string;
 
-    /** Name of the secondary type used locally. */
-    localName: string;
+  /** Name of the secondary type used locally. */
+  localName: string;
 
-    /** Name of the secondary type used in queries. */
-    queryName: string;
+  /** Name of the secondary type used in queries. */
+  queryName: string;
 
-    /** Display name for the secondary type. */
-    displayName: string;
+  /** Display name for the secondary type. */
+  displayName: string;
 
-    /** Description of the secondary type. */
-    description: string;
+  /** Description of the secondary type. */
+  description: string;
 
-    /** Indicates that this is a secondary type. */
-    baseId: 'cmis:secondary';
+  /** Indicates that this is a secondary type. */
+  baseId: 'cmis:secondary';
 
-    /** Identifier for the parent type. Always "cmis:secondary" for secondary types. */
-    parentId: 'cmis:secondary';
+  /** Identifier for the parent type. Always "cmis:secondary" for secondary types. */
+  parentId: 'cmis:secondary';
 
-    /** Indicates if the type can be created by clients. */
-    creatable: false;
+  /** Indicates if the type can be created by clients. */
+  creatable: false;
 
-    /** Indicates if the type can be used in a folder hierarchy. */
-    fileable: false;
+  /** Indicates if the type can be used in a folder hierarchy. */
+  fileable: false;
 
-    /** Indicates if the type can be used in queries. */
-    queryable: true;
+  /** Indicates if the type can be used in queries. */
+  queryable: true;
 
-    /** Indicates if the type is indexed for full-text search. */
-    fulltextIndexed: false;
+  /** Indicates if the type is indexed for full-text search. */
+  fulltextIndexed: false;
 
-    /** Indicates if the type should be included when querying its parent type. */
-    includedInSupertypeQuery: true;
+  /** Indicates if the type should be included when querying its parent type. */
+  includedInSupertypeQuery: true;
 
-    /** Indicates if the type can have policies applied to it. */
-    controllablePolicy: false;
+  /** Indicates if the type can have policies applied to it. */
+  controllablePolicy: false;
 
-    /** Indicates if the type supports access control lists. */
-    controllableACL: false;
+  /** Indicates if the type supports access control lists. */
+  controllableACL: false;
 
-    /** Indicates the type of operations allowed on the type. */
-    typeMutability: {
-      create: true;
-      update: true;
-      delete: true;
-    };
-
-    /** Collection of property definitions associated with this secondary type. */
-    propertyDefinitions?: PropertyDefinitions;
+  /** Indicates the type of operations allowed on the type. */
+  typeMutability: {
+    create: true;
+    update: true;
+    delete: true;
   };
 
-  /**
-   * Represents the input for a property definition, excluding default values.
-   */
-  export type PropertyDefinitionInput = Omit<
-    PropertyDefinition,
-    keyof typeof CreateSecondaryTypeConstants.DEFAULT_PROPERTY_DEFINITION
-  >;
+  /** Collection of property definitions associated with this secondary type. */
+  propertyDefinitions?: CMISTypePropertyDefinitions;
+};
 
-  /**
-   * Represents a collection of input property definitions, indexed by their keys.
-   */
-  export type PropertyDefinitionsInput = {
-    [key: string]: PropertyDefinitionInput;
-  };
+/**
+ * Represents the input for a property definition, excluding default values.
+ */
+export type CMISTypePropertyDefinitionInput = Omit<
+  CMISTypePropertyDefinition,
+  keyof typeof DEFAULT_CMIS_PROPERTY_DEFINITION
+>;
 
-  /**
-   * Represents the input for creating a new type, excluding default values.
-   */
-  export type TypeInput = Omit<
-    Type,
-    keyof typeof CreateSecondaryTypeConstants.DEFAULT_SECONDARY_TYPE
-  > & {
-    propertyDefinitions?: PropertyDefinitionsInput;
-  };
-}
+/**
+ * Represents a collection of input property definitions, indexed by their keys.
+ */
+export type CMISTypePropertyDefinitionsInput = {
+  [key: string]: CMISTypePropertyDefinitionInput;
+};
+
+/**
+ * Represents the input for creating a new type, excluding default values.
+ */
+export type CMISTypeInput = Omit<
+  CMISType,
+  keyof typeof DEFAULT_SECONDARY_TYPE
+> & {
+  propertyDefinitions?: CMISTypePropertyDefinitionsInput;
+};
 
 export type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
 export type XOR<T, U> = T | U extends object

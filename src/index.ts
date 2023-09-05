@@ -1,1 +1,1 @@
-export * from "./CmisClient";
+export * from './CmisClient';

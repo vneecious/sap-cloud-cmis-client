@@ -22,7 +22,7 @@ export const CreateLinkApi = {
       '/browser/{repositoryId}/root',
       {
         pathParameters: { repositoryId },
-        body
+        body,
       }
-    )
+    ),
 };

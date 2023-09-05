@@ -14,5 +14,5 @@ export const FetchRepositoryApi = {
    * Provides detailed information of all the Content Management Interoperability Services(CMIS) repositories linked to an instance with all the necessary information for connecting to them. Response is an object with key as repoID and value will be an object with all necessary information of the repo.
    * @returns The request builder, use the `execute()` method to trigger the request.
    */
-  getBrowser: () => new OpenApiRequestBuilder<RepoObject>('get', '/browser')
+  getBrowser: () => new OpenApiRequestBuilder<RepoObject>('get', '/browser'),
 };

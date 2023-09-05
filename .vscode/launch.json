@@ -5,21 +5,57 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Current TS File",
             "type": "node",
             "request": "launch",
-            "name": "Mocha Tests",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "runtimeExecutable": "node",
             "args": [
-                "-r",
-                "ts-node/register",
-                "${workspaceRoot}/test/*.spec.ts"
+                "${relativeFile}"
             ],
-            "internalConsoleOptions": "openOnSessionStart",
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register/transpile-only"
+            ],
+            "envFile": "${workspaceFolder}/.env",
             "cwd": "${workspaceRoot}",
+            "internalConsoleOptions": "openOnSessionStart",
             "skipFiles": [
                 "<node_internals>/**",
                 "node_modules/**"
             ]
+        },
+        {
+            "name": "Debug Jest Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/.bin/jest",
+                "--runInBand"
+            ],
+            "envFile": "${workspaceFolder}/.env",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+            }
+        },
+        {
+            "name": "Debug Jest Current File",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "args": [
+                "${relativeFile}",
+                "--config",
+                "jest.config.js"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+            }
         }
     ]
 }
