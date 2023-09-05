@@ -1,0 +1,10 @@
+/mta_archives/
+/node_modules/
+/resources/
+dist
+# auto generated wildcard
+.env
+test-env.json
+coverage
+.yarn
+.eslintcache
