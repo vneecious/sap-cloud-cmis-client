@@ -1,81 +1,91 @@
-import { Service, serviceToken } from '@sap-cloud-sdk/connectivity';
 import {
-  CachingOptions,
-  Destination,
-  JwtPayload,
-  XsuaaServiceCredentials,
-  decodeJwt,
-  getDestinationFromServiceBinding,
-} from '@sap-cloud-sdk/connectivity/dist/scp-cf';
+  DestinationAuthToken,
+  DestinationWithName,
+  registerDestination,
+} from '@sap-cloud-sdk/connectivity';
+import { executeHttpRequest } from '@sap-cloud-sdk/http-client';
+import { getServices } from '@sap/xsenv';
 
-type SdmService = Service & {
-  credentials: SdmServiceCredentials;
-};
-
-type SdmServiceCredentials = {
-  [other: string]: any;
-  uaa: {
-    [other: string]: any;
-    url: string;
+type Sdm = {
+  name: string;
+  instance_name: string;
+  label: string;
+  tags: string[];
+  plan: string;
+  credentials: {
+    endpoints: {
+      ecmservice: {
+        timeout: number;
+        url: string;
+      };
+      migrationservice: {
+        url: string;
+      };
+    };
+    'html5-apps-repo': {
+      app_host_id: string;
+    };
+    saasregistryenabled: boolean;
+    'sap.cloud.service': string;
+    service_key_name: string;
+    uaa: {
+      apiurl: string;
+      clientid: string;
+      clientsecret: string;
+      'credential-type': string;
+      identityzone: string;
+      identityzoneid: string;
+      sburl: string;
+      subaccountid: string;
+      tenantid: string;
+      tenantmode: string;
+      uaadomain: string;
+      url: string;
+      verificationkey: string;
+      xsappname: string;
+      zoneid: string;
+    };
+    uri: string;
   };
 };
 
-export async function getDestinationFromSdmBinding(): Promise<Destination> {
-  return await getDestinationFromServiceBinding({
-    destinationName: 'ysfg-pleito-sdm',
-    serviceBindingTransformFn: sdmBindingToDestination,
+export async function createAndRegisterLocalDestinationFromSDMService() {
+  const services = getServices({
+    sdm: { tag: 'sdm' },
   });
-}
+  const sdm = services.sdm as Sdm;
 
-async function sdmBindingToDestination(
-  service: SdmService,
-  options?: CachingOptions & {
-    jwt?: string | JwtPayload;
-    xsuaaCredentials?: XsuaaServiceCredentials;
-  }
-): Promise<Destination> {
-  const transformedService = {
-    ...service,
-    credentials: { ...service.credentials.uaa },
-  };
-
-  const token = await serviceToken(
-    transformedService as unknown as Service,
-    options
-  );
-
-  return buildClientCredentialsDestination(
-    token,
-    service.credentials.uaa.url,
-    service.name
-  );
-}
-
-/**
- * Adapted from SAP Cloud SDK implementation for converting service bindings to destinations.
- * @see [cloud-sdk-js source code](https://github.com/SAP/cloud-sdk-js/blob/72c0ecc566570ee920a0a184653a42a1eb8de8fe/packages/connectivity/src/scp-cf/destination/service-binding-to-destination.ts#L117)
- */
-function buildClientCredentialsDestination(
-  token: string,
-  url: string,
-  name
-): Destination {
-  const expirationTime = decodeJwt(token).exp;
-  const expiresIn = expirationTime
-    ? Math.floor((expirationTime * 1000 - Date.now()) / 1000).toString(10)
-    : undefined;
-  return {
-    url,
-    name,
+  const destination: DestinationWithName = {
+    name: process.env.TEST_DESTINATION_NAME,
+    type: 'HTTP',
+    url: sdm.credentials.endpoints.ecmservice.url,
     authentication: 'OAuth2ClientCredentials',
-    authTokens: [
-      {
-        value: token,
-        type: 'bearer',
-        expiresIn,
-        http_header: { key: 'Authorization', value: `Bearer ${token}` },
-        error: null,
-      },
-    ],
+    clientId: sdm.credentials.uaa.clientid,
+    clientSecret: sdm.credentials.uaa.clientsecret,
+    tokenServiceUrl: sdm.credentials.uaa.url + '/oauth/token',
+    authTokens: [],
   };
+
+  const response = await executeHttpRequest({
+    url:
+      destination.tokenServiceUrl +
+      '?grant_type=client_credentials&response_type=token',
+    authentication: 'BasicAuthentication',
+    username: destination.clientId,
+    password: destination.clientSecret,
+  });
+
+  const { access_token, expires_in } = response;
+
+  destination.authTokens.push({
+    type: 'Bearer',
+    value: access_token,
+    http_header: {
+      key: 'Authorization',
+      value: `Bearer ${access_token}`,
+    },
+    expiresIn: expires_in,
+  } as DestinationAuthToken);
+
+  await registerDestination(destination);
 }

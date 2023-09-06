@@ -5,7 +5,7 @@ import {
   transformJsonToFormData,
   transformObjectToCmisProperties,
   transformToQueryArrayFormat,
-} from '../../src/util/Transform';
+} from '../src/util/Transform';
 
 describe('Transform Utility', () => {
   it('transformInputToBody: should transform input to expected output', () => {

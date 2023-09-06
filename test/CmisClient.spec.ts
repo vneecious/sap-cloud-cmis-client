@@ -21,7 +21,6 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     const destination = await getDestinationFromDestinationService({
       destinationName: process.env.TEST_DESTINATION_NAME,
     });
-
     if (!destination) {
       throw new Error('Could not fetch the destination. Tests aborted');
     }
