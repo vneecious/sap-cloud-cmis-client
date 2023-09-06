@@ -63,7 +63,7 @@
     "form-data": "^4.0.0"
   },
   "lint-staged": {
-    "*.ts": "eslint --cache --cache-location .eslintcache --fix"
+    "src/**/*.ts": "eslint --cache --cache-location .eslintcache --fix"
   },
   "plugins": [
     [
