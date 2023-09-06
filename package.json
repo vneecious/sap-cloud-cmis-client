@@ -1,6 +1,6 @@
 {
   "name": "sap-cloud-cmisjs",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A CMIS client built with @sap-cloud-sdk tools",
   "author": {
     "name": "Vinícius Barrionuevo",
