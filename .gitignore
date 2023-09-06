@@ -8,3 +8,4 @@ test-env.json
 coverage
 .yarn
 .eslintcache
+.DS_Store
