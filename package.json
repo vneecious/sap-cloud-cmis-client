@@ -32,7 +32,7 @@
     "lint": "eslint ./src/ --fix",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
-    "test": "jest --coverage --config jest.config.js",
+    "test": "jest --coverage --config jest.config.js"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.4",
