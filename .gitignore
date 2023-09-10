@@ -1,11 +1,12 @@
-/mta_archives/
 node_modules
 /resources/
 dist
-# auto generated wildcard
 .env
-test-env.json
+*env.json
 coverage
 .yarn
 .eslintcache
 .DS_Store
+
+# ServiceInfo Log
+.serviceinfo.log

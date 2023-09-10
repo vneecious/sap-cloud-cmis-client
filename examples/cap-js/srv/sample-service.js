@@ -10,7 +10,7 @@
  * creating, reading, and updating files, converting the responses from the CMIS repository
  * to the CAP entity format using utility functions.
  *
- * Directory: /samples
+ * Directory: /examples
  *
  * Dependencies:
  * - @sap/cds

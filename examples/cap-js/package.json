@@ -5,6 +5,10 @@
     "srv",
     "index.cds"
   ],
+  "scripts": {
+    "serve": "cds serve",
+    "test": "jest test/sample-service.spec.js"
+  },
   "cds": {},
   "dependencies": {
     "@sap/cds": "^7.2.0",

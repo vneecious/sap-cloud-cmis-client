@@ -33,7 +33,6 @@
     "prepare": "husky install",
     "semantic-release": "semantic-release",
     "test": "jest --coverage --config jest.config.js",
-    "sample-capjs": "cds serve ./samples/cap-js"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.4",
