@@ -1,0 +1,22 @@
+{
+  "name": "cap-js-sample",
+  "version": "1.0.0",
+  "files": [
+    "srv",
+    "index.cds"
+  ],
+  "scripts": {
+    "serve": "cds serve",
+    "test": "jest test/sample-service.spec.js"
+  },
+  "cds": {},
+  "dependencies": {
+    "@sap/cds": "^7.2.0",
+    "@sap/xsenv": "^4.0.0",
+    "mime": "^3.0.0",
+    "sap-cloud-cmis-client": "../../dist"
+  },
+  "devDependencies": {
+    "express": "^4.18.2"
+  }
+}

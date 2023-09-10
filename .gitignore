@@ -1,0 +1,13 @@
+node_modules
+/resources/
+dist
+.env
+*env.json
+coverage
+.yarn
+.eslintcache
+.DS_Store
+yarn-error.log
+
+# ServiceInfo Log
+.serviceinfo.log
