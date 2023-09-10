@@ -20,6 +20,7 @@ type SdmServiceCredentials = {
     [other: string]: any;
     url: string;
   };
+  uri: string;
 };
 
 export async function getDestinationFromSdmBinding(
@@ -53,7 +54,7 @@ async function sdmBindingToDestination(
 
   return buildClientCredentialsDestination(
     token,
-    service.credentials.uaa.url,
+    service.credentials.uri,
     service.name
   );
 }
