@@ -5,19 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run examples/cap-js ",
-            "request": "launch",
-            "runtimeExecutable": "cds",
-            "runtimeArgs": [
-                "serve",
-            ],
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "type": "node",
-            "cwd": "${workspaceFolder}/examples/cap-js"
-        },
-        {
             "name": "Debug Jest Tests",
             "type": "node",
             "request": "launch",
@@ -31,7 +18,7 @@
             "internalConsoleOptions": "neverOpen",
             "windows": {
                 "program": "${workspaceFolder}/node_modules/jest/bin/jest"
-            }
+            },
         },
         {
             "name": "Debug Jest Current File",
@@ -43,6 +30,7 @@
                 "--config",
                 "jest.config.js"
             ],
+            "envFile": "${workspaceFolder}/.env",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "windows": {
