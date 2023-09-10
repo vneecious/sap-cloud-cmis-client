@@ -23,23 +23,35 @@
  * @author Vinicius Barrionuevo
  * @version 1.0.0
  * @date 2023-09-08
- * 
+ *
  */
 
 const { utils } = require('@sap/cds');
-const { CmisClient } = require('sap-cloud-cmisjs');
+const {
+  CmisClient,
+  getDestinationFromSdmBinding,
+} = require('sap-cloud-cmisjs');
 const { uuid } = utils;
 const { getExtension } = require('mime');
 
 module.exports = async srv => {
-  // Initialize the CMIS client with the destination name sourced from the environment variables.
+  // Create a CMIS client.
+  // You can initialize it either from a predefined destination or by generating a local destination from your SDM Service.
+
+  // Option 1: Initialize the CMIS client using a destination name from environment variables.
   const cmisClient = new CmisClient({
     destinationName: process.env.DESTINATION_NAME,
   });
 
+  /*
+   * Option 2: If you haven't set up a predefined destination, generate a local one.
+   * Uncomment the following lines if you wish to use this approach.
+   **/
+  // const destination = await getDestinationFromSdmBinding('sdm'); // where 'sdm' is the name of VCAP_SERVICE
+  // const cmisClient = new CmisClient(destination);
+
   // Fetch available repositories.
-  // It's essential to call this method after initializing the CMIS client to ensure that
-  // the client has access to the repositories and can operate on them.
+  // Ensure to call this after client initialization to guarantee access and operability over the repositories.
   await cmisClient.getRepositories();
 
   /**

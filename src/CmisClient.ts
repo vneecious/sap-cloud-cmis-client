@@ -329,7 +329,7 @@ export class CmisClient {
    *
    * This method allows for the creation of a document object based on a given type, typically specified by the cmis:objectTypeId property.
    *
-   * @param filename - The name that will be assigned to the document object.
+   * @param name - The name that will be assigned to the document object.
    * @param content - The actual content/data of the document to be stored.
    * @param options - Options for document creation.
    * @property options.folderPath - The path within the repository where the document will be created. If not provided, the default location may be used.
@@ -337,16 +337,17 @@ export class CmisClient {
    * @returns Promise resolving to the created document object with its metadata and other relevant details.
    */
   async createDocument(
-    filename: string,
+    name: string,
     content: any,
     options: WriteOptions & {
       folderPath?: string;
-    } = {}
+      versioningState?: 'none' | 'checkedout' | 'major' | 'minor';
+    } = { versioningState: 'major' }
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     const { cmisProperties, config, ...optionalParameters } = options;
 
     const allCmisProperties = transformObjectToCmisProperties({
-      'cmis:name': filename,
+      'cmis:name': name,
       'cmis:objectTypeId': 'cmis:document',
       ...(cmisProperties || {}),
     });
@@ -359,7 +360,7 @@ export class CmisClient {
     };
 
     const requestBody = transformJsonToFormData(bodyData);
-    if (content) requestBody.append('content', content, filename);
+    if (content) requestBody.append('content', content, name);
 
     const api = CmisGeneratedApi.createDocumentApi;
 
