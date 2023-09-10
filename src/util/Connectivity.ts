@@ -2,10 +2,12 @@ import { Service, serviceToken } from '@sap-cloud-sdk/connectivity';
 import {
   CachingOptions,
   Destination,
+  DestinationWithName,
   JwtPayload,
   XsuaaServiceCredentials,
   decodeJwt,
   getDestinationFromServiceBinding,
+  registerDestination,
 } from '@sap-cloud-sdk/connectivity/dist/scp-cf';
 
 type SdmService = Service & {
@@ -23,10 +25,13 @@ type SdmServiceCredentials = {
 export async function getDestinationFromSdmBinding(
   serviceName: string
 ): Promise<Destination> {
-  return await getDestinationFromServiceBinding({
+  const destination = await getDestinationFromServiceBinding({
     destinationName: serviceName,
     serviceBindingTransformFn: sdmBindingToDestination,
   });
+
+  await registerDestination(destination as DestinationWithName);
+  return destination;
 }
 
 async function sdmBindingToDestination(

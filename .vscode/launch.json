@@ -5,25 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Current TS File",
-            "type": "node",
+            "name": "Run samples/cap-js ",
             "request": "launch",
-            "runtimeExecutable": "node",
-            "args": [
-                "${relativeFile}"
-            ],
+            "runtimeExecutable": "cds",
             "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register/transpile-only"
+                "serve",
             ],
-            "envFile": "${workspaceFolder}/.env",
-            "cwd": "${workspaceRoot}",
-            "internalConsoleOptions": "openOnSessionStart",
             "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
-            ]
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "cwd": "${workspaceFolder}/samples/cap-js"
         },
         {
             "name": "Debug Jest Tests",

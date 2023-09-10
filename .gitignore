@@ -1,5 +1,5 @@
 /mta_archives/
-/node_modules/
+node_modules
 /resources/
 dist
 # auto generated wildcard
