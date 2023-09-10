@@ -32,7 +32,7 @@
     "lint": "eslint ./src/ --fix",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
-    "test": "jest --coverage --config jest.config.js"
+    "test": "jest --coverage --config jest.config.js --setupFiles dotenv/config"
   },
   "devDependencies": {
     "@jest/globals": "^29.6.4",
@@ -43,6 +43,7 @@
     "@types/sap__xsenv": "^3.3.0",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
+    "dotenv": "^16.3.1",
     "eslint": "^8.48.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-node": "^11.1.0",

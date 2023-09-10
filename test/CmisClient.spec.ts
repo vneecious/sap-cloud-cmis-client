@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { getDestinationFromDestinationService } from '@sap-cloud-sdk/connectivity';
 import { CmisClient } from '../src/CmisClient';
-import { loadEnv } from '@sap/xsenv';
 import fs from 'fs';
 import path from 'path';
 
@@ -19,16 +18,14 @@ describe('CmisClient integration with BTP - DMS Service', function () {
   let cmisClient: CmisClient;
   const createdObjectIds: Array<string> = [];
   beforeAll(async () => {
-    // local bindings
-    loadEnv('test-env.json');
     const destination = await getDestinationFromDestinationService({
-      destinationName: process.env.TEST_DESTINATION_NAME,
+      destinationName: process.env.DESTINATION_NAME,
     });
     if (!destination) {
       throw new Error('Could not fetch the destination. Tests aborted');
     }
     cmisClient = new CmisClient({
-      destinationName: process.env.TEST_DESTINATION_NAME,
+      destinationName: process.env.DESTINATION_NAME,
     });
     await cmisClient.getRepositories();
   });
