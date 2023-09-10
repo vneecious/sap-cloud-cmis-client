@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run samples/cap-js ",
+            "name": "Run examples/cap-js ",
             "request": "launch",
             "runtimeExecutable": "cds",
             "runtimeArgs": [
@@ -15,7 +15,7 @@
                 "<node_internals>/**"
             ],
             "type": "node",
-            "cwd": "${workspaceFolder}/samples/cap-js"
+            "cwd": "${workspaceFolder}/examples/cap-js"
         },
         {
             "name": "Debug Jest Tests",

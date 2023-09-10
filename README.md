@@ -1,18 +1,25 @@
 ## A JavaScript CMIS Client for SAP Cloud SDK
 
-**`sap-cloud-cmisjs`** is a CMIS client tailored for SAP Cloud SDK (JavaScript) and CAP (NodeJS). This package simplifies the [SAP-provided APIs](https://api.sap.com/package/SAPDocumentManagementServiceIntegrationOptionCMISAPI/overview) into a more streamlined client experience.
+**`sap-cloud-cmisjs`** is a specialized CMIS client designed for the SAP Cloud SDK (JavaScript) and CAP (NodeJS). It consolidates the [SAP-provided OpenAPI specifications](https://api.sap.com/package/SAPDocumentManagementServiceIntegrationOptionCMISAPI/overview) into one cohesive package. Additionally, I've baked in some developer-friendly utilities to streamline your integration process and enhance productivity.
 
-### Installation
+### 📦 Installation
 
 ```bash
 npm install sap-cloud-cmisjs
 ```
 
-### Prerequisites
+### 🚧 Prerequisites
 
-To communicate with the SAP Document Management Service, a destination must be set up. Ensure your project is bound to an instance of the Destination Service.
+To interface with the SAP Document Management Service, consider one of the two approaches below:
 
-### Usage:
+1. Destination Setup: Bind your project to an instance of the Destination Service and establish a destination that targets the SDM service.
+2. SDM Direct Binding: Simply bind your project to an instance of the SDM Service.
+
+In both approaches, destinations are used. The key difference is that for the second method, the destination is generated at runtime. [More details here](https://github.com/vneecious/sap-cloud-cmisjs/blob/9ab3a3a18547e2b0ff46d890c3f0c0b351c1a64c/examples/cap-js/srv/sample-service.js#L47).
+
+### 🛠️ Usage:
+
+Before invoking any other methods, it's essential to call `getRepositories`. This ensures a connection to the instance and fetches all available repositories.
 
 TypeScript
 
@@ -22,7 +29,7 @@ import { CmisClient } from 'sap-cloud-cmisjs';
 const cmisClient = new CmisClient({ destinationName: 'YOUR_DESTINATION_NAME' });
 
 // Load repositories
-await cmisClient.fetchRepository();
+await cmisClient.getRepositories();
 
 // Retrieve all descendants from the root folder
 const descendants = await cmisClient.getDescendants();
@@ -36,14 +43,32 @@ const { CmisClient } = require('sap-cloud-cmisjs');
 const cmisClient = new CmisClient({ destinationName: 'YOUR_DESTINATION_NAME' });
 
 // Load repositories
-await cmisClient.fetchRepository();
+await cmisClient.getRepositories();
 
 // Retrieve all descendants from the root folder
 const descendants = await cmisClient.getDescendants();
 console.log(descendants);
 ```
 
-# Features Overview
+### 🚀 Examples
+
+#### 💡 [Basic CRUD with Cloud Application Programming (CAP)](https://github.com/vneecious/sap-cloud-cmisjs/tree/main/examples/cap-js)
+
+This example demonstrates basic Create, Read, Update, and Delete operations. It's a great starting point if you are wondering how to start.
+
+Usage:
+```bash
+cd examples/cap-js/
+npm install
+cds serve
+```
+
+There are also some integration tests available in the **/test** directory.
+
+
+# API
+
+I've chosen to split the API between the services specified by CMIS 1.1 that are available, and the helpers introduced by SAP to enhance the user experience with SAP DMS.
 
 ## Table of Contents
 
