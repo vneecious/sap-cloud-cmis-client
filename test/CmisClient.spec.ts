@@ -24,7 +24,9 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     if (!destination) {
       throw new Error('Could not fetch the destination. Tests aborted');
     }
-    cmisClient = new CmisClient({ destinationName: 'sdm-i550329' });
+    cmisClient = new CmisClient({
+      destinationName: process.env.TEST_DESTINATION_NAME,
+    });
   });
 
   it('should load repositories from DMS', async () => {
