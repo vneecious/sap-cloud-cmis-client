@@ -1300,7 +1300,7 @@ export class CmisClient {
       includeRelationships: 'none',
       includePolicyIds: false,
     }
-  ): Promise<CmisGeneratedApi.GetObjectResponse | HttpResponse> {
+  ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     const { config, ...optionalParameters } = options;
 
     const requestBody = {
@@ -1878,6 +1878,15 @@ export class CmisClient {
     }
 
     this.defaultRepository = newRepository;
+  }
+
+  /**
+   * Retrieves the default repository.
+   *
+   * @returns - The default CMIS repository.
+   */
+  getDefaultRepository(): CmisGeneratedApi.Repository {
+    return this.defaultRepository;
   }
 
   /**
