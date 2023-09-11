@@ -26,7 +26,7 @@ export type InputObject = Record<any, any>;
  * @returns The transformed object in query array format.
  */
 export function transformToQueryArrayFormat(
-  input: Array<InputObject>
+  input: Array<InputObject>,
 ): CmisProperty {
   const result: CmisProperty = {};
 
@@ -77,7 +77,7 @@ export function transformToQueryArrayFormat(
  */
 
 export function transformObjectToCmisProperties(
-  input: InputObject
+  input: InputObject,
 ): CmisProperty {
   const result: CmisProperty = {};
   let idx = 0;
