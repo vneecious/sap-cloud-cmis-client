@@ -24,7 +24,7 @@ type SdmServiceCredentials = {
 };
 
 export async function getDestinationFromSdmBinding(
-  serviceName: string
+  serviceName: string,
 ): Promise<Destination> {
   const destination = await getDestinationFromServiceBinding({
     destinationName: serviceName,
@@ -40,7 +40,7 @@ async function sdmBindingToDestination(
   options?: CachingOptions & {
     jwt?: string | JwtPayload;
     xsuaaCredentials?: XsuaaServiceCredentials;
-  }
+  },
 ): Promise<Destination> {
   const transformedService = {
     ...service,
@@ -49,13 +49,13 @@ async function sdmBindingToDestination(
 
   const token = await serviceToken(
     transformedService as unknown as Service,
-    options
+    options,
   );
 
   return buildClientCredentialsDestination(
     token,
     service.credentials.uri,
-    service.name
+    service.name,
   );
 }
 
@@ -66,7 +66,7 @@ async function sdmBindingToDestination(
 function buildClientCredentialsDestination(
   token: string,
   url: string,
-  name
+  name,
 ): Destination {
   const expirationTime = decodeJwt(token).exp;
   const expiresIn = expirationTime
