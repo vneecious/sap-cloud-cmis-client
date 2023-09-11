@@ -255,6 +255,28 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       expect(result).toBe(fileContent);
     });
 
+    it('should download a file as arraybuffer', async () => {
+      const filename = `test-downloadFile-${Date.now().toString()}.txt`;
+      const fileContent = 'Lorem ipsum dolor';
+      const inputBuffer = Buffer.from('Lorem ipsum dolor', 'utf-8');
+      document = await cmisClient.createDocument(filename, inputBuffer);
+
+      const outputBuffer = await cmisClient.downloadFile(
+        document.succinctProperties['cmis:objectId'],
+        {
+          download: 'attachment',
+          filename,
+          config: {
+            customRequestConfiguration: {
+              responseType: 'arraybuffer',
+            },
+          },
+        },
+      );
+      expect(Buffer.isBuffer(outputBuffer)).toBe(true);
+      expect(inputBuffer).toEqual(outputBuffer);
+    });
+
     it('should get deleted children', async () => {
       await cmisClient.getDeletedChildren();
     });
