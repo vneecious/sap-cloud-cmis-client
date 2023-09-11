@@ -231,6 +231,12 @@ export class CmisClient {
       request = request.addCustomHeaders(config.customHeaders);
     }
 
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
+
     request = request.middleware(middlewares.jsonToFormData);
 
     return config?.raw
@@ -279,6 +285,12 @@ export class CmisClient {
 
     if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
     request.middleware(middlewares.jsonToFormData);
 
@@ -382,6 +394,12 @@ export class CmisClient {
       request = request.addCustomHeaders(config.customHeaders);
     }
 
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
+
     return config?.raw
       ? request.executeRaw(this.destination)
       : request.execute(this.destination);
@@ -429,6 +447,12 @@ export class CmisClient {
 
     if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     request = request.middleware(middlewares.jsonToFormData);
@@ -568,6 +592,12 @@ export class CmisClient {
       request = request.addCustomHeaders(config.customHeaders);
     }
 
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
+
     request.middleware(middlewares.jsonToFormData);
 
     return config?.raw
@@ -695,6 +725,12 @@ export class CmisClient {
       request = request.addCustomHeaders(config.customHeaders);
     }
 
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
+
     request = request.middleware(middlewares.jsonToFormData);
 
     return config?.raw
@@ -727,6 +763,12 @@ export class CmisClient {
 
     if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -859,8 +901,10 @@ export class CmisClient {
     objectId: string,
     options: {
       filename?: string;
-      download: 'attachment' | 'inline';
-    } & BaseOptions = { download: 'attachment' },
+      download?: 'attachment' | 'inline';
+    } & BaseOptions = {
+      download: 'attachment',
+    },
   ): Promise<any> {
     const { config, ...optionalParameters } = options;
 
@@ -880,6 +924,12 @@ export class CmisClient {
 
     if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -968,6 +1018,12 @@ export class CmisClient {
       request = request.addCustomHeaders(config.customHeaders);
     }
 
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
+
     return config?.raw
       ? request.executeRaw(this.destination)
       : request.execute(this.destination);
@@ -1011,6 +1067,12 @@ export class CmisClient {
 
     if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1190,6 +1252,12 @@ export class CmisClient {
 
     if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1490,6 +1558,12 @@ export class CmisClient {
       request = request.addCustomHeaders(config.customHeaders);
     }
 
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
+
     return config?.raw
       ? request.executeRaw(this.destination)
       : request.execute(this.destination);
@@ -1612,6 +1686,12 @@ export class CmisClient {
       request = request.addCustomHeaders(config.customHeaders);
     }
 
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
+
     request = request.middleware(middlewares.jsonToFormData);
 
     return config?.raw
@@ -1721,6 +1801,12 @@ export class CmisClient {
       request = request.addCustomHeaders(config.customHeaders);
     }
 
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
+
     request = request.middleware(middlewares.jsonToFormData);
 
     return config?.raw
@@ -1763,6 +1849,12 @@ export class CmisClient {
 
     if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     request = request.middleware(middlewares.jsonToFormData);
@@ -1810,6 +1902,12 @@ export class CmisClient {
 
     if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw

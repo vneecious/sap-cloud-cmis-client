@@ -39,6 +39,12 @@ export type BaseOptions = {
      * Useful for passing additional metadata
      */
     customHeaders?: Record<string, string>;
+
+    /**
+     * Custom Request configurations
+     * @see {@link https://sap.github.io/cloud-sdk/docs/js/features/openapi/execute-request#setting-a-custom-request-configuration}
+     */
+    customRequestConfiguration?: Record<string, string>;
   };
 };
 
