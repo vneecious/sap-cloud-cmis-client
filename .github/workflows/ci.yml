@@ -46,6 +46,9 @@ jobs:
       - name: Check code format
         run: yarn format:check
 
+      - name: Check lint
+        run: yarn lint:check
+
       - name: Test
         run: yarn test
         env:

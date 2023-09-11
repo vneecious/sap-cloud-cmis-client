@@ -33,6 +33,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "lint": "eslint ./src/ --fix",
+    "lint:check": "eslint ./src/",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
     "test": "jest --coverage --config jest.config.js --setupFiles dotenv/config",
