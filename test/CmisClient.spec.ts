@@ -65,20 +65,20 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       it('should create a document in root with content', async () => {
         const result = await cmisClient.createDocument(
           `File-${Date.now().toString()}.txt`,
-          Buffer.from('Lorem ipsum dolor', 'utf-8')
+          Buffer.from('Lorem ipsum dolor', 'utf-8'),
         );
 
         document = result;
 
         createdObjectIds.push(document.succinctProperties['cmis:objectId']);
         expect(result.succinctProperties).toHaveProperty(
-          'cmis:contentStreamLength'
+          'cmis:contentStreamLength',
         );
       });
 
       it('should get the properties of the object', async () => {
         await cmisClient.getProperties(
-          document.succinctProperties['cmis:objectId']
+          document.succinctProperties['cmis:objectId'],
         );
       });
 
@@ -95,17 +95,17 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       // Teste de checkout de documento
       it('should checkout the created document', async () => {
         documentCheckOut = await cmisClient.checkOut(
-          document.succinctProperties['cmis:objectId']
+          document.succinctProperties['cmis:objectId'],
         );
         expect(
-          documentCheckOut.succinctProperties['cmis:isPrivateWorkingCopy']
+          documentCheckOut.succinctProperties['cmis:isPrivateWorkingCopy'],
         ).toBe(true);
       });
 
       // Cancelar checkout de documento
       it('should cancel checkout', async () => {
         const result = await cmisClient.cancelCheckOut(
-          documentCheckOut.succinctProperties['cmis:objectId']
+          documentCheckOut.succinctProperties['cmis:objectId'],
         );
         expect(result).toBe('');
       });
@@ -113,10 +113,10 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       // Adicionar fluxo de conteúdo ao documento
       it('should append content stream to the document', async () => {
         documentCheckOut = await cmisClient.checkOut(
-          document.succinctProperties['cmis:objectId']
+          document.succinctProperties['cmis:objectId'],
         );
         expect(
-          documentCheckOut.succinctProperties['cmis:isPrivateWorkingCopy']
+          documentCheckOut.succinctProperties['cmis:isPrivateWorkingCopy'],
         );
 
         try {
@@ -124,11 +124,11 @@ describe('CmisClient integration with BTP - DMS Service', function () {
             documentCheckOut.succinctProperties['cmis:objectId'],
             fileName,
             Buffer.from('This content was appended', 'utf-8'),
-            { isLastChunk: true }
+            { isLastChunk: true },
           );
 
           expect(result.succinctProperties).toHaveProperty(
-            'cmis:contentStreamLength'
+            'cmis:contentStreamLength',
           );
         } catch (error) {
           console.error(error.response.data);
@@ -138,7 +138,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       // Checkin de um documento modificado
       it('should checkin the modified document', async () => {
         const result = await cmisClient.checkIn(
-          documentCheckOut.succinctProperties['cmis:objectId']
+          documentCheckOut.succinctProperties['cmis:objectId'],
         );
         document = result;
         expect(result.succinctProperties['cmis:versionLabel']).toBe('2.0');
@@ -153,7 +153,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
             cmisProperties: {
               'cmis:name': `${document.succinctProperties['cmis:name']}-copy`,
             },
-          }
+          },
         );
 
         createdObjectIds.push(document.succinctProperties['cmis:objectId']);
@@ -161,13 +161,13 @@ describe('CmisClient integration with BTP - DMS Service', function () {
 
       it('should get allowable actions', async () => {
         await cmisClient.getAllowableActions(
-          document.succinctProperties['cmis:objectId']
+          document.succinctProperties['cmis:objectId'],
         );
       });
 
       it('should delete a document', async () => {
         await cmisClient.deleteObject(
-          document.succinctProperties['cmis:objectId']
+          document.succinctProperties['cmis:objectId'],
         );
       });
     });
@@ -183,7 +183,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
         folder = result;
         expect(result).toHaveProperty('succinctProperties');
         expect(result.succinctProperties['cmis:objectTypeId']).toBe(
-          'cmis:folder'
+          'cmis:folder',
         );
 
         createdIds.push(folder.succinctProperties['cmis:objectId']);
@@ -192,7 +192,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       // Get details of the created folder
       it('should retrieve the created folder details', async () => {
         const result = await cmisClient.getObject(
-          folder.succinctProperties['cmis:objectId']
+          folder.succinctProperties['cmis:objectId'],
         );
         expect(result.succinctProperties['cmis:name']).toBe(folderName);
       });
@@ -209,11 +209,11 @@ describe('CmisClient integration with BTP - DMS Service', function () {
         const result: MoveObjectResponse = await cmisClient.moveObject(
           folder.succinctProperties['cmis:objectId'],
           cmisClient.getDefaultRepository().rootFolderId,
-          newFolder.succinctProperties['cmis:objectId']
+          newFolder.succinctProperties['cmis:objectId'],
         );
 
         expect(result.properties['cmis:parentId'].value).toBe(
-          newFolder.succinctProperties['cmis:objectId']
+          newFolder.succinctProperties['cmis:objectId'],
         );
       });
 
@@ -226,7 +226,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
             cmisProperties: {
               'cmis:name': newName,
             },
-          }
+          },
         );
         expect(result.succinctProperties['cmis:name']).toBe(newName);
       });
@@ -245,11 +245,11 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       const fileContent = 'Lorem ipsum dolor';
       document = await cmisClient.createDocument(
         filename,
-        Buffer.from('Lorem ipsum dolor', 'utf-8')
+        Buffer.from('Lorem ipsum dolor', 'utf-8'),
       );
 
       const result = await cmisClient.downloadFile(
-        document.succinctProperties['cmis:objectId']
+        document.succinctProperties['cmis:objectId'],
       );
 
       expect(result).toBe(fileContent);
@@ -265,17 +265,17 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       // cmisClient.setDefaultRepository('ee2f17a2-6218-4056-93e0-f8a9b343fcc6'); // set share repository as default
       const document = await cmisClient.createDocument(
         `File-${Date.now().toString()}.txt`,
-        Buffer.from('Lorem ipsum dolor', 'utf-8')
+        Buffer.from('Lorem ipsum dolor', 'utf-8'),
       );
       await cmisClient.createFavorite(
-        document.succinctProperties['cmis:objectId']
+        document.succinctProperties['cmis:objectId'],
       );
     });
 
     it('should create link', async () => {
       const result = await cmisClient.createLink(
         'http://sap.com',
-        `SAP-${Date.now()}`
+        `SAP-${Date.now()}`,
       );
       expect(result.succinctProperties['cmis:objectTypeId']).toBe('sap:link');
     });
@@ -289,11 +289,11 @@ describe('CmisClient integration with BTP - DMS Service', function () {
 
     it('should delete permanently an object', async () => {
       await cmisClient.deleteObject(
-        document.succinctProperties['cmis:objectId']
+        document.succinctProperties['cmis:objectId'],
       );
 
       await cmisClient.deletePermanently(
-        document.succinctProperties['cmis:objectId']
+        document.succinctProperties['cmis:objectId'],
       );
     });
 
@@ -306,7 +306,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
 
       const document = await cmisClient.createDocument(fileName, content);
       await cmisClient.generateThumbnail(
-        document.succinctProperties['cmis:objectId']
+        document.succinctProperties['cmis:objectId'],
       );
     });
 
@@ -316,7 +316,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       const filePath = path.join(__dirname, 'chico.jpg');
 
       async function createDocumentWithFileName(
-        fileName: string
+        fileName: string,
       ): Promise<string> {
         const content = fs.createReadStream(filePath);
         const document: CreateDocumentResponse =
@@ -359,7 +359,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
                 Cookie: setCookieHeader.join('; '),
               },
             },
-          }
+          },
         );
         const isZip = response.startsWith('PK');
         expect(isZip).toBeTruthy();
@@ -374,14 +374,14 @@ describe('CmisClient integration with BTP - DMS Service', function () {
         'select * from cmis:document',
         {
           maxItems: 1,
-        }
+        },
       );
 
       expect(response.numItems).toBeGreaterThan(0);
       document = response.results[0];
 
       const result = await cmisClient.getACLProperty(
-        document.succinctProperties['cmis:objectId']
+        document.succinctProperties['cmis:objectId'],
       );
 
       expect(result).toHaveProperty('acl');
@@ -434,20 +434,20 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       });
 
       const result = await cmisClient.getChildren(
-        folder.succinctProperties['cmis:objectId']
+        folder.succinctProperties['cmis:objectId'],
       );
       expect(result).toHaveProperty('objects');
     });
 
     it('should get descendants', async () => {
       await cmisClient.getDescendants(
-        folder.succinctProperties['cmis:objectId']
+        folder.succinctProperties['cmis:objectId'],
       );
     });
 
     it('should get folder tree', async () => {
       await cmisClient.getFolderTree(
-        folder.succinctProperties['cmis:objectId']
+        folder.succinctProperties['cmis:objectId'],
       );
     });
 
