@@ -84,8 +84,15 @@ export class CmisClient {
       requestBody,
     );
 
-    if (config?.customHeaders)
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+    if (config?.customHeaders) {
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
 
     request = request.middleware(middlewares.jsonToFormData);
     return config?.raw
@@ -131,8 +138,15 @@ export class CmisClient {
       requestBody,
     );
 
-    if (config?.customHeaders)
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+    if (config?.customHeaders) {
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
 
     return config?.raw
       ? request.executeRaw(this.destination)
@@ -185,13 +199,19 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.cmisQueryApi;
-    const request = api.getBrowserByRepositoryId(
+    let request = api.getBrowserByRepositoryId(
       this.defaultRepository.repositoryId,
       parameters,
     );
 
     if (config?.customHeaders) {
-      request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -292,6 +312,7 @@ export class CmisClient {
         config?.customRequestConfiguration,
       );
     }
+
     request.middleware(middlewares.jsonToFormData);
 
     return config?.raw
@@ -327,7 +348,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     request = request.middleware(middlewares.jsonToFormData);
@@ -533,7 +560,13 @@ export class CmisClient {
     }
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     request = request.middleware(middlewares.jsonToFormData);
@@ -653,7 +686,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     request.middleware(middlewares.jsonToFormData);
@@ -817,7 +856,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     request = request.middleware(middlewares.jsonToFormData);
@@ -846,8 +891,15 @@ export class CmisClient {
 
     let request = api.getBrowser();
 
-    if (config?.customHeaders)
+    if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
 
     this.repositories = await request.execute(this.destination);
 
@@ -959,7 +1011,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1146,7 +1204,13 @@ export class CmisClient {
       requestBody as any,
     );
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1182,7 +1246,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1317,7 +1387,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1392,7 +1468,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1461,7 +1543,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1503,7 +1591,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1598,7 +1692,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1642,7 +1742,13 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
     }
 
     return config?.raw
@@ -1763,8 +1869,15 @@ export class CmisClient {
       requestBody,
     );
 
-    if (config?.customHeaders)
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+    if (config?.customHeaders) {
+      request = request.addCustomHeaders(config.customHeaders);
+    }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
 
     request = request.middleware(middlewares.jsonToFormData);
     return config?.raw
@@ -1953,8 +2066,15 @@ export class CmisClient {
     );
 
     if (config?.customHeaders) {
-      request = request.addCustomHeaders(options?.config?.customHeaders);
+      request = request.addCustomHeaders(config.customHeaders);
     }
+
+    if (config?.customRequestConfiguration) {
+      request = request.addCustomRequestConfiguration(
+        config?.customRequestConfiguration,
+      );
+    }
+
     return config?.raw
       ? request.executeRaw(this.destination)
       : request.execute(this.destination);
