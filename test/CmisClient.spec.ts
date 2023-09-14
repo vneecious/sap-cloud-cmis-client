@@ -480,5 +480,26 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     it('should get children of the given type', async () => {
       await cmisClient.getTypeChildren('cmis:document');
     });
+
+    it('should get the content URL', async () => {
+      const sampleDocument = {
+        succinctProperties: {
+          'cmis:objectId': 'sampleId',
+          'cmis:thumbnailContentStreamId': 'sampleThumbnailStreamId',
+          'cmis:contentStreamId': 'sampleContentStreamId',
+        },
+      };
+
+      const url = await cmisClient.getDocumentUriPath(sampleDocument);
+
+      const expectedBasePath = `/browser/${
+        cmisClient.getDefaultRepository().repositoryId
+      }/root`;
+      const expectedContentUrl = `${expectedBasePath}?cmisselector=content&objectId=sampleId&streamId=sampleContentStreamId`;
+      const expectedThumbnailUrl = `${expectedBasePath}?cmisselector=content&objectId=sampleId&streamId=sampleThumbnailStreamId`;
+
+      expect(url.content).toBe(expectedContentUrl);
+      expect(url.thumbnail).toBe(expectedThumbnailUrl);
+    });
   });
 });
