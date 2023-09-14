@@ -2099,6 +2099,45 @@ export class CmisClient {
   }
 
   /**
+   * Retrieves the content and thumbnail URIs for a given CMIS document.
+   *
+   * @async
+   * @param {CmisGeneratedApi.CreateDocumentResponse | string} document - The CMIS document object or its ID as a string.
+   * If a string is provided, it fetches the document using the `getObject` method.
+   * @returns {Promise<{ content?: string; thumbnail?: string }>} An object containing URLs for content and thumbnail.
+   * If the respective stream ID is not available, the URL property will not be set.
+   *
+   * @example
+   * const { content, thumbnail } = await getObjectPath("documentId12345");
+   * console.log(content);  // Outputs content URL
+   * console.log(thumbnail);  // Outputs thumbnail URL
+   */
+  async getDocumentUriPath(
+    document: CmisGeneratedApi.CreateDocumentResponse | string,
+  ): Promise<{ content?: string; thumbnail?: string }> {
+    const object =
+      typeof document == 'string' ? await this.getObject(document) : document;
+
+    const {
+      'cmis:objectId': objectId,
+      'cmis:thumbnailContentStreamId': thumbnailStreamId,
+      'cmis:contentStreamId': contentStreamId,
+    } = object.succinctProperties;
+
+    const path = `/browser/${this.defaultRepository.repositoryId}/root`;
+
+    const buildURL = (streamId: string) =>
+      streamId
+        ? `${path}?cmisselector=content&objectId=${objectId}&streamId=${streamId}`
+        : null;
+
+    return {
+      content: buildURL(contentStreamId),
+      thumbnail: buildURL(thumbnailStreamId),
+    };
+  }
+
+  /**
    * Retrieves the default repository.
    *
    * @returns - The default CMIS repository.
