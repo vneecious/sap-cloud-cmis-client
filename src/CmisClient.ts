@@ -2120,7 +2120,7 @@ export class CmisClient {
 
     const {
       'cmis:objectId': objectId,
-      'cmis:thumbnailContentStreamId': thumbnailStreamId,
+      'sap:thumbnailContentStreamId': thumbnailStreamId,
       'cmis:contentStreamId': contentStreamId,
     } = object.succinctProperties;
 
