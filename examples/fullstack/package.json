@@ -6,16 +6,33 @@
         "index.cds"
     ],
     "scripts": {
-        "serve": "cds serve"
+        "serve:dev": "cds serve --profile hybrid",
+        "start:appRouter": "PORT=5001 cds bind --exec -- npm start --prefix app",
+        "start:dev": "concurrently \"npm run serve:dev\" \"npm run start:appRouter\"",
+        "postinstall": "npm i --prefix app"
     },
-    "cds": {},
+    "cds": {
+        "requires": {
+            "auth": {
+                "kind": "xsuaa"
+            },
+            "approuter": {
+                "kind": "cloudfoundry"
+            }
+        }
+    },
     "dependencies": {
+        "@sap-cloud-sdk/connectivity": "^3.5.0",
+        "@sap-cloud-sdk/core": "^1.54.2",
         "@sap/cds": "^7.2.0",
         "@sap/xsenv": "^4.0.0",
+        "@sap/xssec": "^3.3.4",
         "mime": "^3.0.0",
-        "sap-cloud-cmis-client": "^1.1.1"
+        "passport": "^0.6.0",
+        "sap-cloud-cmis-client": "^1.2.1"
     },
     "devDependencies": {
+        "concurrently": "^8.2.1",
         "express": "^4.18.2"
     }
 }

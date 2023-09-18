@@ -1,4 +1,5 @@
 <mvc:View
+    xmlns:form="sap.ui.layout.form"
     xmlns:upload="sap.m.upload"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
@@ -7,14 +8,16 @@
 >
     <upload:UploadSet
         id="UploadSet"
-        instantUpload="true"
+        instantUpload="false"
         showIcons="true"
         uploadEnabled="true"
         terminationEnabled="true"
+        beforeItemAdded="onBeforeItemAdded"
         uploadCompleted="onUploadCompleted"
         items="{path: '/Files', templateShareable: false, events: { dataRequested: '.onDataRequested', dataReceived: '.onDataReceived' } }"
         selectionChanged="onSelectionChange"
         busy="{view>/busy}"
+        busyIndicatorDelay="0"
     >
         <upload:toolbar>
             <OverflowToolbar>
@@ -28,35 +31,26 @@
         </upload:toolbar>
         <upload:items>
             <upload:UploadSetItem
+                id="UploadSetListBindingTemplate"
                 fileName="{name}"
                 mediaType="{contentType}"
-                url="/odata/v4/sample/Files/{id}/content?CMISObjectId={CMISObjectId}"
+                url="{contentUrl}"
+                thumbnailUrl="{thumbnailUrl}"
                 openPressed=".onOpenPressed"
-                attributes="{path: 'attributes', templateShareable: false}"
-                markers="{path: 'markers', templateShareable: false}"
-                statuses="{path: 'statuses', templateShareable: false}"
-                uploadState="{uploadState}"
+                removePressed=".onRemovePressed"
+                visibleEdit="false"
             >
+                <upload:layoutData />
                 <upload:attributes>
                     <ObjectAttribute
-                        title="{title}"
-                        text="{text}"
-                        active="{active}"
+                        title="Creation Date"
+                        text="{path: 'creationDate'}"
                     />
                 </upload:attributes>
-                <upload:markers>
-                    <ObjectMarker
-                        type="{type}"
-                        visibility="{visibility}"
-                    />
-                </upload:markers>
                 <upload:statuses>
                     <ObjectStatus
-                        title="{title}"
-                        text="{text}"
-                        state="{state}"
-                        icon="{icon}"
-                        active="{active}"
+                        title="Created by"
+                        text="{createdBy}"
                     />
                 </upload:statuses>
             </upload:UploadSetItem>

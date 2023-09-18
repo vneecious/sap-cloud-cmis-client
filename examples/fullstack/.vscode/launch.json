@@ -7,13 +7,28 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "serve:dev",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "runtimeExecutable": "cds",
-            "args": ["serve"],
-            "envFile": "${workspaceFolder}/../../.env"
+            "runtimeExecutable": "npm",
+            "args": [
+                "run",
+                "serve:dev"
+            ],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "start:all",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "runtimeExecutable": "npm",
+            "args": [
+                "run",
+                "start:dev"
+            ],
         }
     ]
 }

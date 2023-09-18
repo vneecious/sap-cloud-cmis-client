@@ -1,61 +1,92 @@
 # Fullstack Example with SAP Cloud CMIS Client
 
-This repository provides an illustrative example showcasing the integration of the *SAP Cloud CMIS Client* within a full-stack application context. Follow the steps below to get this example up and running.
+This repository offers a demonstration showcasing the integration of the _SAP Cloud CMIS Client_ within a full-stack application context. Follow the instructions below to set up and run this example.
 
 ## How to Run
 
+### Prerequisites:
+
+Ensure you have created instances and keys for all necessary services.
+
+For **xsuaa**:
+
+```bash
+cf create-service xsuaa application my-sample-uaa -c xs-security.json
+cf create-service-key my-sample-uaa my-sample-uaa-key
+```
+
+For **sdm** (also known as DMS):
+
+```bash
+cf create-service sdm standard my-sample-sdm
+cf create-service-key my-sample-sdm my-sample-sdm-key
+```
+
+> **Note:** Don't forget to [onboard your repository](https://help.sap.com/docs/document-management-service/sap-document-management-service/onboarding-repository).
+
+For **destination**:
+
+```bash
+cf create-service destination lite my-sample-destination
+cf create-service-key my-sample-destination my-sample-destination-key
+```
+
+Next, create a destination for the DMS Service. Ensure you set the _Authentication_ to `OAuth2UserTokenExchange`.
+The easiest way to achieve this is by creating the destination from the DMS Service Instance, then exporting and deleting the destination. Finally, import it again after modifying its Authentication property and re-entering the Client Secret.
+
+With everything set up, you can proceed to the following steps.
+
+---
+
 ### Step 1: Download the Project Directory
 
-- Navigate to [this website](https://download-directory.github.io) and paste the following URL: `https://github.com/vneecious/sap-cloud-cmis-client/blob/master/examples/fullstack`.
-- Initiate the download of the folder as a ZIP archive.
+- Go to [this website](https://download-directory.github.io) and paste the following URL: `https://github.com/vneecious/sap-cloud-cmis-client/blob/master/examples/fullstack`.
+- Begin the folder's download as a ZIP archive.
 
 ### Step 2: Extract the Files
 
-Locate the downloaded ZIP on your system and extract its contents.
+Find the downloaded ZIP on your system and unpack its contents.
 
 ### Step 3: Install Dependencies
 
-Execute the following command to ensure all necessary dependencies are in place:
+Run the following command to install all required dependencies:
 
 ```bash
 npm install
 ```
 
-### Step 4: Adjust Configuration Files
+### Step 4: Adjust `default-env.json` and `./app/xs-app.json` files
 
-To set up the correct environment, you'll need to rename the `.default-env.json` files:
-
-```bash
-mv ./.default-env.json ./default-env.json
-mv ./app/.default-env.json ./app/default-env.json
-```
-
-> **Note:** Double-check to ensure both files are correctly renamed.
+Replace `my-sample-sdm` with the name of the destination you created in the prerequisites.
 
 ### Step 5: Bind to BTP Services
 
-Link the project to your Business Technology Platform (BTP) services with:
+First, bind the services to your local project:
 
 ```bash
-cds bind -2 <your-sdm>, <your-xsuaa>, <your-destination>
+cf bind-local -path .env -service-names my-sample-uaa
+cf bind-local -path .env -service-names my-sample-destination
 ```
 
-### Step 6: Configure your UAA
-
-Ensure your XSUAA is set to "dedicated". Additionally, the correct `redirect_uris` must be specified. Refer to the `xs-security.json-example` for guidance.
-
-> **Note:** If you're using the Business Application Studio, you might encounter the `invalid redirect` error. In such cases, simply copy the provided URL, incorporate it into your `xs-security.json`, and then update the service.
+Then bind your CAP project to uaa and destination instances:
 
 ```bash
-cf update-service <your_xsuaa> -c xs-security.json
+cds bind -2 my-sample-uaa
+cds bind -2 my-sample-destination
 ```
 
-### Step 7: Launch the Project
+### Step 6: Launch the Project
 
-Kickstart the project using the following command:
+Start the project using the following command:
 
 ```bash
 npm run start:dev
 ```
 
-> **Note:** Once launched, the approuter will be accessible at `http://localhost:5000`.
+> **Note 1:** Once launched, the approuter will be accessible at `http://localhost:5001`.
+
+> **Note 2:** If you're using the Business Application Studio, you might come across the `invalid redirect` error. If this happens, copy the given URL, add it to your `xs-security.json`, and update the service using the command below:
+
+```bash
+cf update-service my-sample-uaa -c xs-security.json
+```
