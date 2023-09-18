@@ -485,7 +485,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       const sampleDocument = {
         succinctProperties: {
           'cmis:objectId': 'sampleId',
-          'cmis:thumbnailContentStreamId': 'sampleThumbnailStreamId',
+          'sap:thumbnailContentStreamId': 'sampleThumbnailStreamId',
           'cmis:contentStreamId': 'sampleContentStreamId',
         },
       };

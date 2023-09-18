@@ -1,0 +1,59 @@
+<mvc:View
+    xmlns:form="sap.ui.layout.form"
+    xmlns:upload="sap.m.upload"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    controllerName="sample.controller.App"
+    height="100%"
+>
+    <upload:UploadSet
+        id="UploadSet"
+        instantUpload="false"
+        showIcons="true"
+        uploadEnabled="true"
+        terminationEnabled="true"
+        beforeItemAdded="onBeforeItemAdded"
+        uploadCompleted="onUploadCompleted"
+        items="{path: '/Files', templateShareable: false, events: { dataRequested: '.onDataRequested', dataReceived: '.onDataReceived' } }"
+        selectionChanged="onSelectionChange"
+        busy="{view>/busy}"
+        busyIndicatorDelay="0"
+    >
+        <upload:toolbar>
+            <OverflowToolbar>
+                <ToolbarSpacer />
+                <Button
+                    text="Download"
+                    enabled="{view>/hasSelectedItems}"
+                    press="onDownloadPress"
+                />
+            </OverflowToolbar>
+        </upload:toolbar>
+        <upload:items>
+            <upload:UploadSetItem
+                id="UploadSetListBindingTemplate"
+                fileName="{name}"
+                mediaType="{contentType}"
+                url="{contentUrl}"
+                thumbnailUrl="{thumbnailUrl}"
+                openPressed=".onOpenPressed"
+                removePressed=".onRemovePressed"
+                visibleEdit="false"
+            >
+                <upload:layoutData />
+                <upload:attributes>
+                    <ObjectAttribute
+                        title="Creation Date"
+                        text="{path: 'creationDate'}"
+                    />
+                </upload:attributes>
+                <upload:statuses>
+                    <ObjectStatus
+                        title="Created by"
+                        text="{createdBy}"
+                    />
+                </upload:statuses>
+            </upload:UploadSetItem>
+        </upload:items>
+    </upload:UploadSet>
+</mvc:View>
