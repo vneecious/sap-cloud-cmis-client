@@ -54,3 +54,4 @@ jobs:
         env:
           VCAP_SERVICES: ${{ secrets.VCAP_SERVICES }}
           DESTINATION_NAME: ${{ secrets.DESTINATION_NAME }}
+          SDM_SERVICE_NAME: ${{ secrets.SDM_SERVICE_NAME }}
