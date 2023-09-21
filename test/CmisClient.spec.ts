@@ -41,8 +41,7 @@ describe('CmisClient integration with BTP - DMS Service', function () {
   });
 
   it('should load repositories from DMS', async () => {
-    const result =
-      (await cmisClient.getRepositories()) as FetchRepositoryResponse;
+    const result = await cmisClient.getRepositories();
     const repository = Object.values(result)[0];
     expect(repository).toHaveProperty('repositoryId');
   });

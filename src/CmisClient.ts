@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { HttpDestinationOrFetchOptions } from '@sap-cloud-sdk/connectivity';
+import { getDestination } from '@sap-cloud-sdk/core';
 import { HttpResponse } from '@sap-cloud-sdk/http-client';
 import * as middlewares from './middleware';
 
@@ -20,19 +21,23 @@ import {
   CMISType,
   RemoveAcl,
   CMISTypePropertyDefinition,
+  OptionsConfig,
 } from './types';
 import { OpenApiRequestBuilder } from '@sap-cloud-sdk/openapi';
 import {
   DEFAULT_CMIS_PROPERTY_DEFINITION,
   DEFAULT_SECONDARY_TYPE,
 } from './util/Constants';
+import { IncomingMessage } from 'http';
+import { TokenInfo } from './types/xssec';
 
 export class CmisClient {
   private repositories: CmisGeneratedApi.FetchRepositoryResponse;
   private defaultRepository: CmisGeneratedApi.Repository;
+  private _req: IncomingMessage & { tokenInfo?: TokenInfo };
 
   constructor(
-    private readonly destination: HttpDestinationOrFetchOptions,
+    private destination: HttpDestinationOrFetchOptions,
     private globalParameters?: BaseCmisOptions,
   ) {
     if (!globalParameters) {
@@ -66,7 +71,7 @@ export class CmisClient {
     addACEs: Array<AddAcl>,
     options: BaseCmisOptions & {
       ACLPropagation?: 'objectonly' | 'propagate' | 'repositorydetermined';
-    } = { ACLPropagation: 'repositorydetermined' },
+    } = { ACLPropagation: 'repositorydetermined', config: {} },
   ): Promise<CmisGeneratedApi.AddAclPropertyResponse | HttpResponse> {
     const formattedAddACEs = transformToQueryArrayFormat(addACEs);
     const { config, ...optionalParams } = options;
@@ -79,25 +84,17 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.addAclPropertyApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -133,24 +130,12 @@ export class CmisClient {
     if (contentStream) requestBody.append('content', contentStream, filename);
 
     const api = CmisGeneratedApi.appendContentStreamApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -199,24 +184,12 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.cmisQueryApi;
-    let request = api.getBrowserByRepositoryId(
+    const request = api.getBrowserByRepositoryId(
       this.defaultRepository.repositoryId,
       parameters,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -230,7 +203,7 @@ export class CmisClient {
    */
   async cancelCheckOut(
     objectId: string,
-    options: BaseCmisOptions = {},
+    options: BaseCmisOptions = { config: {} },
   ): Promise<any> {
     const { config, ...optionalParameters } = options;
 
@@ -242,26 +215,17 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.cancelCheckoutDocumentApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -281,6 +245,7 @@ export class CmisClient {
     } & WriteOptions = {
       major: true,
       checkinComment: 'not set',
+      config: {},
     },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     const { cmisProperties, config, ...optionalParameters } = options;
@@ -298,26 +263,17 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.checkInDocumentApi;
 
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -330,7 +286,7 @@ export class CmisClient {
     objectId: string,
     options: {
       includeAllowableActions?: boolean;
-    } & BaseCmisOptions = {},
+    } & BaseCmisOptions = { config: {} },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     const { config, ...optionalParameters } = options;
 
@@ -342,25 +298,17 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.checkOutDocumentApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -417,19 +365,7 @@ export class CmisClient {
       );
     }
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -449,7 +385,7 @@ export class CmisClient {
     targetFolderId?: string,
     options: WriteOptions & {
       folderPath?: string;
-    } = {},
+    } = { config: {} },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     const { cmisProperties, config, ...optionalParameters } = options;
     const allCmisProperties = {
@@ -467,26 +403,17 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.createDocumentfromSourceApi;
 
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -527,7 +454,7 @@ export class CmisClient {
     name: string,
     options: WriteOptions & {
       folderPath?: string;
-    } = {},
+    } = { config: {} },
   ): Promise<CmisGeneratedApi.CreateFolderResponse | HttpResponse> {
     const { cmisProperties, config, ...optionalParameters } = options;
     const allCmisProperties = transformObjectToCmisProperties({
@@ -559,21 +486,12 @@ export class CmisClient {
       );
     }
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -590,7 +508,9 @@ export class CmisClient {
   async createLink(
     url: string,
     title?: string,
-    options: WriteOptions = {},
+    options: WriteOptions = {
+      config: {},
+    },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     const { cmisProperties, config, ...optionalParameters } = options;
 
@@ -616,26 +536,17 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.createLinkApi;
 
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -651,7 +562,9 @@ export class CmisClient {
    */
   async createType(
     type: CMISTypeInput,
-    options: BaseCmisOptions = {},
+    options: BaseCmisOptions = {
+      config: {},
+    },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     const propertyDefinitions: CMISTypePropertyDefinitions = {};
     // Merge property definitions with defaults
@@ -680,26 +593,17 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.createTypeApi;
 
-    let request = api.createBrowserByRepositoryId(
+    const request = api.createBrowserByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -744,7 +648,7 @@ export class CmisClient {
     objectId: string,
     options: {
       allVersions?: boolean;
-    } & BaseOptions = { allVersions: true },
+    } & BaseOptions = { allVersions: true, config: {} },
   ): Promise<any> {
     const { config, ...optionalParameters } = options;
 
@@ -755,26 +659,17 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.deleteObjectApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -792,7 +687,7 @@ export class CmisClient {
     const { config } = options;
 
     const api = CmisGeneratedApi.deletePermanentlyApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       {
         cmisselector: 'deletePermanent',
@@ -800,19 +695,7 @@ export class CmisClient {
       },
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -839,6 +722,7 @@ export class CmisClient {
       allVersions: true,
       unfileObjects: 'delete',
       continueOnFailure: false,
+      config: {},
     },
   ): Promise<any> {
     const { config, ...optionalParameters } = options;
@@ -850,26 +734,17 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.deleteTreeApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -889,19 +764,10 @@ export class CmisClient {
     const { config } = options;
     const api = CmisGeneratedApi.fetchRepositoryApi;
 
-    let request = api.getBrowser();
+    const request = api.getBrowser();
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    this.repositories = await request.execute(this.destination);
+    const response = await this.exec(request, config);
+    this.repositories = config?.raw ? response.data : response;
 
     if (repositoryId) {
       this.setDefaultRepository(repositoryId);
@@ -909,7 +775,7 @@ export class CmisClient {
       this.defaultRepository = Object.values(this.repositories)[0];
     }
 
-    return this.repositories;
+    return response;
   }
 
   /**
@@ -969,24 +835,12 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.downloadAFileApi;
 
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1002,7 +856,7 @@ export class CmisClient {
     const { config } = options;
 
     const api = CmisGeneratedApi.generateThumbnailApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       {
         cmisAction: 'generateThumbnail',
@@ -1010,19 +864,7 @@ export class CmisClient {
       },
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1067,24 +909,12 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.getAclPropertyApi;
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1118,24 +948,12 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getAllowableActionsApi;
 
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1193,7 +1011,7 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.getChildrenApi;
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       /**
        * The `any` type assertion is used here to bypass the "orderBy" property type restriction.
@@ -1203,19 +1021,7 @@ export class CmisClient {
        */
       requestBody as any,
     );
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1240,24 +1046,12 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getDeletedChildrenApi;
 
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1309,7 +1103,7 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getDescendantsApi;
 
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       /**
        * The `any` type assertion is used here to bypass the "orderBy" property type restriction.
@@ -1320,19 +1114,7 @@ export class CmisClient {
       requestBody as any,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1381,24 +1163,12 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getFolderTreeApi;
 
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody as any,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1456,7 +1226,7 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getObjectApi;
 
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       /**
        * The `any` type assertion is used here to bypass the "orderBy" property type restriction.
@@ -1467,19 +1237,7 @@ export class CmisClient {
       requestBody as any,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1537,24 +1295,12 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getPropertiesApi;
 
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1585,24 +1331,12 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getParentApi;
 
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1637,7 +1371,7 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getTypeChildrenApi;
 
-    let request = api.getBrowserByRepositoryId(
+    const request = api.getBrowserByRepositoryId(
       this.defaultRepository.repositoryId,
       /**
        * The `any` type assertion is used here to bypass the "orderBy" property type restriction.
@@ -1648,19 +1382,7 @@ export class CmisClient {
       requestBody as any,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1686,24 +1408,12 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getTypeChildrenApi;
 
-    let request = api.getBrowserByRepositoryId(
+    const request = api.getBrowserByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1736,24 +1446,12 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.getTypeChildrenApi;
 
-    let request = api.getBrowserByRepositoryId(
+    const request = api.getBrowserByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1783,26 +1481,12 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.moveObjectApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1864,25 +1548,12 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.removeAlcPropertyApi;
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1894,7 +1565,9 @@ export class CmisClient {
    */
   async restoreObject(
     objectId: string,
-    options: BaseOptions = {},
+    options: BaseOptions = {
+      config: {},
+    },
   ): Promise<CmisGeneratedApi.RestoreObjectResponse | HttpResponse> {
     const { config, ...optionalParameters } = options;
 
@@ -1905,26 +1578,17 @@ export class CmisClient {
     };
 
     const api = CmisGeneratedApi.restoreObjectApi;
-    let request = api.updateBrowserRootByRepositoryId(
+    const request = api.updateBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -1938,7 +1602,9 @@ export class CmisClient {
    */
   async updateProperties(
     objectId: string,
-    options: WriteOptions = {},
+    options: WriteOptions = {
+      config: {},
+    },
   ): Promise<CmisGeneratedApi.UpdatePropertiesResponse | HttpResponse> {
     const { cmisProperties, config, ...optionalParameters } = options;
     const allCmisProperties = {
@@ -1955,26 +1621,17 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.updatePropertiesApi;
 
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    request = request.middleware(middlewares.jsonToFormData);
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -2008,24 +1665,12 @@ export class CmisClient {
       filename: 'DUMMY.txt',
     });
 
-    let request = api.createBrowserRootByRepositoryId(
+    const request = api.createBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
 
-    if (config?.customHeaders) {
-      request = request.addCustomHeaders(config.customHeaders);
-    }
-
-    if (config?.customRequestConfiguration) {
-      request = request.addCustomRequestConfiguration(
-        config?.customRequestConfiguration,
-      );
-    }
-
-    return config?.raw
-      ? request.executeRaw(this.destination)
-      : request.execute(this.destination);
+    return await this.exec(request, config);
   }
 
   /**
@@ -2060,10 +1705,50 @@ export class CmisClient {
 
     const api = CmisGeneratedApi.zipDownloadApi;
 
-    let request = api.getBrowserRootByRepositoryId(
+    const request = api.getBrowserRootByRepositoryId(
       this.defaultRepository.repositoryId,
       requestBody,
     );
+
+    return await this.exec(request, config);
+  }
+
+  /**==========================================================================================
+   * CMIS CLIENT SPECIFIC METHODS
+   *=========================================================================================*/
+
+  /**
+   * Sets the Express' IncomingMessage object to be considered for subsequent HTTP requests.
+   *
+   * This method allows the CMIS client to be aware of the context of the incoming request, particularly
+   * useful for cases where user-specific details (like tokens) need to be propagated to the CMIS service.
+   *
+   * @param req - The incoming request from Express/CAP that contains the user's context and, optionally, token information.
+   * @returns {CmisClient} - Returns the current instance of the CMISClient for chaining.
+   */
+  withRequest(req: IncomingMessage & { tokenInfo?: TokenInfo }): CmisClient {
+    this._req = req;
+    return this;
+  }
+
+  /**
+   * HTTP Request execution wrapper for CMISClient.
+   *
+   * This method centralizes the logic for executing HTTP requests, applying middleware,
+   * custom headers, custom configurations, and other options.
+   *
+   *
+   * @param request - The OpenApiRequestBuilder object that represents the request to be executed.
+   * @param options - Optional configurations to modify the request behavior. This includes custom headers,
+   *                  custom request configurations, middleware, and a flag to execute the request in 'raw' mode.
+   * @returns {Promise<T | HttpResponse>} - Returns the result of the request, either as a parsed object (of type T)
+   *                                       or as a raw HttpResponse, depending on the 'raw' flag in options.
+   */
+  private async exec<T>(
+    request: OpenApiRequestBuilder<T>,
+    config?: OptionsConfig,
+  ): Promise<T | HttpResponse> {
+    await this.loadDestination();
 
     if (config?.customHeaders) {
       request = request.addCustomHeaders(config.customHeaders);
@@ -2075,14 +1760,35 @@ export class CmisClient {
       );
     }
 
+    if (config?.middleware) {
+      request = request.middleware(config.middleware);
+    }
+
     return config?.raw
       ? request.executeRaw(this.destination)
       : request.execute(this.destination);
   }
 
-  /**==========================================================================================
-   * CMIS CLIENT SPECIFIC METHODS
-   *=========================================================================================*/
+  /**
+   * Loads details of the specified destination from the Destination Service.
+   *
+   * If the destination isn't registered in the Destination Service (e.g., defined via Environment Variables or set at runtime),
+   * the provided destination configuration is used as-is. In cases where authentication requires user-specific tokens,
+   * the user token is sourced from the previously set Express' IncomingMessage object and propagated accordingly.
+   *
+   * @private
+   * @throws {Error} If fetching destination details from the Destination Service fails.
+   * @returns {Promise<void>} Resolves once the destination details are set or updated.
+   */
+  private async loadDestination(): Promise<void> {
+    const destinationName =
+      this.destination?.name || this.destination?.destinationName;
+
+    this.destination = await getDestination(destinationName, {
+      userJwt: this?._req?.tokenInfo?.getTokenValue(),
+      useCache: true,
+    });
+  }
 
   /**
    * Set the given repository Id as the default
