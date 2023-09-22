@@ -13,6 +13,7 @@ module.exports = async srv => {
   srv.before('*', 'Files', async req => {
     const destination = await getDestination(CMIS_DESTINATION_NAME, {
       userJwt: req.req.tokenInfo.getTokenValue(),
+      useCache: true,
     });
     if (!cmisClient) {
       cmisClient = new CmisClient(destination);

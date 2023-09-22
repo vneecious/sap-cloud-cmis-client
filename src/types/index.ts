@@ -1,7 +1,34 @@
+import { HttpMiddleware } from '@sap-cloud-sdk/http-client';
 import {
   DEFAULT_CMIS_PROPERTY_DEFINITION,
   DEFAULT_SECONDARY_TYPE,
 } from 'src/util/Constants';
+
+export type OptionsConfig = {
+  /**
+   * If set to `true`, the response will return the entire `HttpResponse` object.
+   * Otherwise, only the response body will be returned.
+   */
+  raw?: boolean;
+
+  /**
+   * Custom headers to be included in the request.
+   * Useful for passing additional metadata
+   */
+  customHeaders?: Record<string, string>;
+
+  /**
+   * Custom Request configurations
+   * @see {@link https://sap.github.io/cloud-sdk/docs/js/features/openapi/execute-request#setting-a-custom-request-configuration}
+   */
+  customRequestConfiguration?: Record<string, string>;
+
+  /**
+   * Custom Middlewares
+   * @see {@link https://sap.github.io/cloud-sdk/docs/js/features/middleware}
+   */
+  middleware?: HttpMiddleware | HttpMiddleware[];
+};
 
 export type BaseCmisOptions = {
   /**
@@ -27,25 +54,7 @@ export type BaseOptions = {
   /**
    * Configuration options for the request.
    */
-  config?: {
-    /**
-     * If set to `true`, the response will return the entire `HttpResponse` object.
-     * Otherwise, only the response body will be returned.
-     */
-    raw?: boolean;
-
-    /**
-     * Custom headers to be included in the request.
-     * Useful for passing additional metadata
-     */
-    customHeaders?: Record<string, string>;
-
-    /**
-     * Custom Request configurations
-     * @see {@link https://sap.github.io/cloud-sdk/docs/js/features/openapi/execute-request#setting-a-custom-request-configuration}
-     */
-    customRequestConfiguration?: Record<string, string>;
-  };
+  config?: OptionsConfig;
 };
 
 export type WriteOptions = {
