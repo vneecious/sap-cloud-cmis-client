@@ -71,10 +71,10 @@ export class CmisClient {
     addACEs: Array<AddAcl>,
     options: BaseCmisOptions & {
       ACLPropagation?: 'objectonly' | 'propagate' | 'repositorydetermined';
-    } = { ACLPropagation: 'repositorydetermined', config: {} },
+    } = { ACLPropagation: 'repositorydetermined' },
   ): Promise<CmisGeneratedApi.AddAclPropertyResponse | HttpResponse> {
     const formattedAddACEs = transformToQueryArrayFormat(addACEs);
-    const { config, ...optionalParams } = options;
+    const { config = {}, ...optionalParams } = options;
 
     const requestBody = {
       cmisaction: 'applyAcl',
@@ -117,7 +117,7 @@ export class CmisClient {
       isLastChunk: false,
     },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const bodyData = {
       cmisaction: 'appendContent',
@@ -174,7 +174,7 @@ export class CmisClient {
       searchAllVersions: false,
     },
   ): Promise<CmisGeneratedApi.CMISQueryResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const parameters = {
       cmisSelector: 'query',
@@ -203,9 +203,9 @@ export class CmisClient {
    */
   async cancelCheckOut(
     objectId: string,
-    options: BaseCmisOptions = { config: {} },
+    options?: BaseCmisOptions,
   ): Promise<any> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options || {};
 
     const requestBody = {
       cmisaction: 'cancelCheckOut',
@@ -245,10 +245,9 @@ export class CmisClient {
     } & WriteOptions = {
       major: true,
       checkinComment: 'not set',
-      config: {},
     },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
-    const { cmisProperties, config, ...optionalParameters } = options;
+    const { cmisProperties, config = {}, ...optionalParameters } = options;
     const allCmisProperties = {
       ...transformObjectToCmisProperties(cmisProperties || {}),
     };
@@ -284,11 +283,11 @@ export class CmisClient {
    */
   async checkOut(
     objectId: string,
-    options: {
+    options?: {
       includeAllowableActions?: boolean;
-    } & BaseCmisOptions = { config: {} },
+    } & BaseCmisOptions,
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options || {};
 
     const requestBody = {
       cmisaction: 'checkOut',
@@ -331,7 +330,7 @@ export class CmisClient {
       versioningState?: 'none' | 'checkedout' | 'major' | 'minor';
     } = { versioningState: 'major' },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
-    const { cmisProperties, config, ...optionalParameters } = options;
+    const { cmisProperties, config = {}, ...optionalParameters } = options;
 
     const allCmisProperties = transformObjectToCmisProperties({
       'cmis:name': name,
@@ -352,7 +351,7 @@ export class CmisClient {
     const api = CmisGeneratedApi.createDocumentApi;
 
     let request: OpenApiRequestBuilder<CmisGeneratedApi.CreateDocumentResponse>;
-    if (!options.folderPath) {
+    if (!options?.folderPath) {
       request = api.createBrowserRootByRepositoryId(
         this.defaultRepository.repositoryId,
         requestBody,
@@ -383,11 +382,15 @@ export class CmisClient {
   async createDocumentFromSource(
     sourceId: string,
     targetFolderId?: string,
-    options: WriteOptions & {
+    options?: WriteOptions & {
       folderPath?: string;
-    } = { config: {} },
+    },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
-    const { cmisProperties, config, ...optionalParameters } = options;
+    const {
+      cmisProperties,
+      config = {},
+      ...optionalParameters
+    } = options || {};
     const allCmisProperties = {
       ...transformObjectToCmisProperties(cmisProperties || {}),
     };
@@ -431,7 +434,7 @@ export class CmisClient {
    */
   async createFavorite(
     objectId: string,
-    options: BaseOptions = {},
+    options?: BaseOptions,
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     return this.updateProperties(objectId, {
       ...options,
@@ -452,11 +455,15 @@ export class CmisClient {
    */
   async createFolder(
     name: string,
-    options: WriteOptions & {
+    options?: WriteOptions & {
       folderPath?: string;
-    } = { config: {} },
+    },
   ): Promise<CmisGeneratedApi.CreateFolderResponse | HttpResponse> {
-    const { cmisProperties, config, ...optionalParameters } = options;
+    const {
+      cmisProperties,
+      config = {},
+      ...optionalParameters
+    } = options || {};
     const allCmisProperties = transformObjectToCmisProperties({
       'cmis:name': name,
       'cmis:objectTypeId': 'cmis:folder',
@@ -473,7 +480,7 @@ export class CmisClient {
     const api = CmisGeneratedApi.createFolderApi;
 
     let request: OpenApiRequestBuilder<CmisGeneratedApi.CreateFolderResponse>;
-    if (!options.folderPath) {
+    if (!options?.folderPath) {
       request = api.createBrowserRootByRepositoryId(
         this.defaultRepository.repositoryId,
         requestBody,
@@ -508,11 +515,13 @@ export class CmisClient {
   async createLink(
     url: string,
     title?: string,
-    options: WriteOptions = {
-      config: {},
-    },
+    options?: WriteOptions,
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
-    const { cmisProperties, config, ...optionalParameters } = options;
+    const {
+      cmisProperties,
+      config = {},
+      ...optionalParameters
+    } = options || {};
 
     const requiredCmisPropeties = transformObjectToCmisProperties({
       'cmis:name': title || url,
@@ -562,9 +571,7 @@ export class CmisClient {
    */
   async createType(
     type: CMISTypeInput,
-    options: BaseCmisOptions = {
-      config: {},
-    },
+    options?: BaseCmisOptions,
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     const propertyDefinitions: CMISTypePropertyDefinitions = {};
     // Merge property definitions with defaults
@@ -582,7 +589,7 @@ export class CmisClient {
       propertyDefinitions,
     } as CMISType;
 
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options || {};
 
     const requestBody = {
       cmisaction: 'createType',
@@ -618,7 +625,7 @@ export class CmisClient {
    */
   async createShare(
     name: string,
-    options: BaseCmisOptions = {},
+    options?: BaseCmisOptions,
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
     return this.createFolder(name, {
       ...options,
@@ -648,9 +655,9 @@ export class CmisClient {
     objectId: string,
     options: {
       allVersions?: boolean;
-    } & BaseOptions = { allVersions: true, config: {} },
+    } & BaseOptions = { allVersions: true },
   ): Promise<any> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       cmisaction: 'delete',
@@ -682,9 +689,9 @@ export class CmisClient {
    */
   async deletePermanently(
     objectId: string,
-    options: BaseOptions = {},
+    options?: BaseOptions,
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
-    const { config } = options;
+    const { config } = options || {};
 
     const api = CmisGeneratedApi.deletePermanentlyApi;
     const request = api.createBrowserRootByRepositoryId(
@@ -722,10 +729,9 @@ export class CmisClient {
       allVersions: true,
       unfileObjects: 'delete',
       continueOnFailure: false,
-      config: {},
     },
   ): Promise<any> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       cmisaction: 'deleteTree',
@@ -759,9 +765,9 @@ export class CmisClient {
    */
   async getRepositories(
     repositoryId?: string,
-    options: BaseOptions = {},
+    options?: BaseOptions,
   ): Promise<CmisGeneratedApi.FetchRepositoryResponse | HttpResponse> {
-    const { config } = options;
+    const { config = {} } = options || {};
     const api = CmisGeneratedApi.fetchRepositoryApi;
 
     const request = api.getBrowser();
@@ -824,7 +830,7 @@ export class CmisClient {
       download: 'attachment',
     },
   ): Promise<any> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       cmisselector: 'content',
@@ -851,9 +857,9 @@ export class CmisClient {
    */
   async generateThumbnail(
     objectId: string,
-    options: BaseOptions = {},
+    options?: BaseOptions,
   ): Promise<CmisGeneratedApi.GenerateThumbnailResponse | HttpResponse> {
-    const { config } = options;
+    const { config = {} } = options || {};
 
     const api = CmisGeneratedApi.generateThumbnailApi;
     const request = api.createBrowserRootByRepositoryId(
@@ -898,7 +904,7 @@ export class CmisClient {
       renditionFilter: 'cmis:none',
     },
   ): Promise<CmisGeneratedApi.GetAclPropertyResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       objectId,
@@ -937,7 +943,7 @@ export class CmisClient {
       filter: '*',
     },
   ): Promise<CmisGeneratedApi.GetAllowableActionsResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       objectId,
@@ -1001,7 +1007,7 @@ export class CmisClient {
       includeRelationships: 'none',
     },
   ): Promise<CmisGeneratedApi.GetChildrenResponse | HttpResponse> {
-    const { config, ...optionalparameters } = options;
+    const { config = {}, ...optionalparameters } = options;
 
     const requestBody = {
       objectId,
@@ -1034,9 +1040,9 @@ export class CmisClient {
    */
   async getDeletedChildren(
     objectId?: string,
-    options: BaseCmisOptions = {},
+    options?: BaseCmisOptions,
   ): Promise<CmisGeneratedApi.GetDeletedChildrenResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options || {};
     const requestBody = {
       objectId,
       cmisselector: 'deletedChildren',
@@ -1092,7 +1098,7 @@ export class CmisClient {
       includeRelationships: 'none',
     },
   ): Promise<CmisGeneratedApi.GetDescendantsResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       objectId: objectId || this.defaultRepository.rootFolderId,
@@ -1152,7 +1158,7 @@ export class CmisClient {
       includeRelationships: 'none',
     },
   ): Promise<CmisGeneratedApi.GetFolderTreeResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       objectId: objectId || this.defaultRepository.rootFolderId,
@@ -1215,7 +1221,7 @@ export class CmisClient {
       includePolicyIds: false,
     },
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       objectId,
@@ -1284,7 +1290,7 @@ export class CmisClient {
       includePolicyIds: false,
     },
   ): Promise<CmisGeneratedApi.GetPropertiesApiResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       objectId,
@@ -1320,7 +1326,7 @@ export class CmisClient {
       filter: '*',
     },
   ): Promise<CmisGeneratedApi.GetParentResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       objectId,
@@ -1359,7 +1365,7 @@ export class CmisClient {
       includePropertiesDefinition: false,
     },
   ): Promise<CmisGeneratedApi.GetTypeChildrenResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       typeId,
@@ -1394,9 +1400,9 @@ export class CmisClient {
    */
   async getTypeDefinition(
     typeId: string,
-    options: BaseCmisOptions = {},
+    options?: BaseCmisOptions,
   ): Promise<CmisGeneratedApi.GetTypeDefinitionResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options || {};
 
     const requestBody = {
       typeId,
@@ -1434,7 +1440,7 @@ export class CmisClient {
       includePropertiesDefinition: false,
     },
   ): Promise<CmisGeneratedApi.GetTypeDescendantsResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       typeId,
@@ -1468,9 +1474,9 @@ export class CmisClient {
     objectId: string,
     sourceFolderId: string,
     targetFolderId: string,
-    options: BaseOptions = {},
+    options?: BaseOptions,
   ): Promise<CmisGeneratedApi.MoveObjectResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options || {};
 
     const requestBody = {
       cmisaction: 'move',
@@ -1485,6 +1491,11 @@ export class CmisClient {
       this.defaultRepository.repositoryId,
       requestBody,
     );
+
+    config.middleware = [
+      ...[].concat(config?.middleware || []).flat(),
+      middlewares.jsonToFormData,
+    ];
 
     return await this.exec(request, config);
   }
@@ -1501,9 +1512,9 @@ export class CmisClient {
   async zipExtractAndUpload(
     filename: string,
     content: any,
-    options: BaseOptions = {},
+    options?: BaseOptions,
   ): Promise<CmisGeneratedApi.CreateDocumentResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options || {};
 
     return this.createDocument(filename, content, {
       ...optionalParameters,
@@ -1538,7 +1549,7 @@ export class CmisClient {
     } = { ACLPropagation: 'repositorydetermined' },
   ): Promise<CmisGeneratedApi.RemoveAclPropertyResponse | HttpResponse> {
     const formattedRemoveACEs = transformToQueryArrayFormat(removeACEs);
-    const { config, ...optionalParams } = options;
+    const { config = {}, ...optionalParams } = options;
 
     const requestBody = {
       cmisaction: 'applyAcl',
@@ -1565,11 +1576,9 @@ export class CmisClient {
    */
   async restoreObject(
     objectId: string,
-    options: BaseOptions = {
-      config: {},
-    },
+    options?: BaseOptions,
   ): Promise<CmisGeneratedApi.RestoreObjectResponse | HttpResponse> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options || {};
 
     const requestBody = {
       cmisaction: 'restoreObject',
@@ -1602,11 +1611,13 @@ export class CmisClient {
    */
   async updateProperties(
     objectId: string,
-    options: WriteOptions = {
-      config: {},
-    },
+    options?: WriteOptions,
   ): Promise<CmisGeneratedApi.UpdatePropertiesResponse | HttpResponse> {
-    const { cmisProperties, config, ...optionalParameters } = options;
+    const {
+      cmisProperties,
+      config = {},
+      ...optionalParameters
+    } = options || {};
     const allCmisProperties = {
       ...transformObjectToCmisProperties(cmisProperties || {}),
     };
@@ -1642,13 +1653,13 @@ export class CmisClient {
    */
   async zipCreationForDownload(
     objectIds: string[],
-    options: BaseCmisOptions = {},
+    options?: BaseCmisOptions,
   ): Promise<any> {
     const api = CmisGeneratedApi.zipCreationForDownload;
     const cmisProperties = transformObjectToCmisProperties({
       'cmis:objectTypeId': 'cmis:document',
     });
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options || {};
 
     const bodyData = {
       cmisaction: 'createDocument',
@@ -1693,7 +1704,7 @@ export class CmisClient {
       download: 'attachment',
     },
   ): Promise<any> {
-    const { config, ...optionalParameters } = options;
+    const { config = {}, ...optionalParameters } = options;
 
     const requestBody = {
       objectId: zipObjectId,

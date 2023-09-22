@@ -210,7 +210,6 @@ describe('CmisClient integration with BTP - DMS Service', function () {
           cmisClient.getDefaultRepository().rootFolderId,
           newFolder.succinctProperties['cmis:objectId'],
         );
-
         expect(result.properties['cmis:parentId'].value).toBe(
           newFolder.succinctProperties['cmis:objectId'],
         );
@@ -309,13 +308,14 @@ describe('CmisClient integration with BTP - DMS Service', function () {
     });
 
     it('should delete permanently an object', async () => {
-      await cmisClient.deleteObject(
+      const deleteResult = await cmisClient.deleteObject(
         document.succinctProperties['cmis:objectId'],
       );
 
-      await cmisClient.deletePermanently(
+      const permanentlyDeleteResult = await cmisClient.deletePermanently(
         document.succinctProperties['cmis:objectId'],
       );
+      debugger;
     });
 
     // NOTE: The repository MUST be onboarded with the property `isThumbnailEnabled` set to `true`
@@ -326,9 +326,10 @@ describe('CmisClient integration with BTP - DMS Service', function () {
       const fileName = `chico-${Date.now()}.jpg`;
 
       const document = await cmisClient.createDocument(fileName, content);
-      await cmisClient.generateThumbnail(
+      const result = await cmisClient.generateThumbnail(
         document.succinctProperties['cmis:objectId'],
       );
+      debugger;
     });
 
     describe('CMIS Client ZIP tests', () => {
@@ -344,12 +345,6 @@ describe('CmisClient integration with BTP - DMS Service', function () {
           await cmisClient.createDocument(fileName, content);
         return document.succinctProperties['cmis:objectId'] as string;
       }
-
-      afterAll(async () => {
-        for (const objectId of objectIds) {
-          await cmisClient.deleteObject(objectId);
-        }
-      });
 
       it('should create a zip content from two documents', async () => {
         const firstFileName = `first-${Date.now()}.jpg`;
