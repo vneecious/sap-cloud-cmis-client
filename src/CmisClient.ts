@@ -1795,10 +1795,16 @@ export class CmisClient {
     const destinationName =
       this.destination?.name || this.destination?.destinationName;
 
-    this.destination = await getDestination(destinationName, {
-      userJwt: this?._req?.tokenInfo?.getTokenValue(),
-      useCache: true,
-    });
+    let options: { useCache: boolean; userJwt?: string } = { useCache: true };
+    const userJwt =
+      typeof this?._req?.tokenInfo?.getTokenValue === 'function'
+        ? this?._req?.tokenInfo?.getTokenValue()
+        : undefined;
+
+    if (userJwt) {
+      options = { ...options, userJwt };
+    }
+    this.destination = await getDestination(destinationName, options);
   }
 
   /**
